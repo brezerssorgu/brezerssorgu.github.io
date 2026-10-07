@@ -7,42 +7,18 @@
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
   html, body { height: 100%; overflow-x: hidden; }
-  body { background: #05080f; color: #e6e6e6; transition: .3s; }
+  body { background: #05080f; color: #e6e6e6; --accent: #2196f3; --accent2: #1976d2; --accent-light: #64b5f6; }
   body.theme-green { --accent: #4caf50; --accent2: #2e7d32; --accent-light: #81c784; }
   body.theme-purple { --accent: #9c27b0; --accent2: #6a1b9a; --accent-light: #ce93d8; }
-  body { --accent: #2196f3; --accent2: #1976d2; --accent-light: #64b5f6; }
 
-  #bgLayer {
-    position: fixed; inset: 0; z-index: 0;
-    background: radial-gradient(ellipse at 50% 100%, #0d3b4a 0%, #071a26 40%, #03070d 100%);
-    overflow: hidden;
-  }
-  #bgLayer::before {
-    content: ""; position: absolute; inset: 0;
-    background-image:
-      radial-gradient(1px 1px at 20% 30%, #fff, transparent),
-      radial-gradient(1px 1px at 60% 70%, #9ad, transparent),
-      radial-gradient(1px 1px at 80% 20%, #fff, transparent),
-      radial-gradient(1px 1px at 35% 80%, #7cf, transparent),
-      radial-gradient(1px 1px at 90% 60%, #fff, transparent),
-      radial-gradient(1px 1px at 10% 90%, #9df, transparent),
-      radial-gradient(2px 2px at 50% 15%, #fff, transparent),
-      radial-gradient(1px 1px at 75% 45%, #adf, transparent),
-      radial-gradient(1px 1px at 25% 55%, #fff, transparent),
-      radial-gradient(1px 1px at 45% 40%, #7cf, transparent);
-    background-repeat: repeat; background-size: 600px 600px;
-    opacity: 0.6; animation: starDrift 120s linear infinite;
-  }
-  @keyframes starDrift { from { background-position: 0 0; } to { background-position: 600px 600px; } }
+  #bgLayer { position: fixed; inset: 0; z-index: 0; background: radial-gradient(ellipse at 50% 100%, #0d3b4a 0%, #071a26 40%, #03070d 100%); }
+  #bgLayer::before { content: ""; position: absolute; inset: 0;
+    background-image: radial-gradient(1px 1px at 20% 30%, #fff, transparent), radial-gradient(1px 1px at 60% 70%, #9ad, transparent), radial-gradient(1px 1px at 80% 20%, #fff, transparent), radial-gradient(1px 1px at 35% 80%, #7cf, transparent), radial-gradient(1px 1px at 90% 60%, #fff, transparent), radial-gradient(1px 1px at 10% 90%, #9df, transparent), radial-gradient(2px 2px at 50% 15%, #fff, transparent), radial-gradient(1px 1px at 75% 45%, #adf, transparent), radial-gradient(1px 1px at 25% 55%, #fff, transparent), radial-gradient(1px 1px at 45% 40%, #7cf, transparent);
+    background-repeat: repeat; background-size: 600px 600px; opacity: 0.5; }
   #mountains { position: fixed; bottom: 0; left: 0; right: 0; height: 45vh; z-index: 1; pointer-events: none; }
   #mountains svg { width: 100%; height: 100%; display: block; }
 
-  /* TR ENGELLEME */
-  #blockScreen {
-    position: fixed; inset: 0; z-index: 9999;
-    display: none; align-items: center; justify-content: center;
-    background: rgba(5,8,15,0.98); text-align: center; padding: 20px;
-  }
+  #blockScreen { position: fixed; inset: 0; z-index: 9999; display: none; align-items: center; justify-content: center; background: rgba(5,8,15,0.98); text-align: center; padding: 20px; }
   #blockScreen.show { display: flex; }
   .block-box { max-width: 500px; }
   .block-box .icon { font-size: 80px; margin-bottom: 20px; }
@@ -50,248 +26,119 @@
   .block-box p { color: #b8c4d4; font-size: 15px; line-height: 1.7; margin-bottom: 10px; }
   .block-box .vpn-tip { color: var(--accent); font-size: 14px; margin-top: 20px; padding: 15px; border: 1px dashed var(--accent); border-radius: 10px; }
 
-  /* AUTH */
-  #authScreen { position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; padding: 20px; }
-  .auth-card {
-    position: relative; display: grid; grid-template-columns: 1fr 1fr;
-    width: 100%; max-width: 960px; min-height: 560px;
-    background: rgba(10, 18, 28, 0.72); backdrop-filter: blur(20px);
-    border: 1px solid rgba(33, 150, 243, 0.15); border-radius: 22px;
-    box-shadow: 0 0 60px rgba(0, 140, 255, 0.12); overflow: hidden;
-  }
-  .auth-left {
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    padding: 40px; text-align: center; border-right: 1px solid rgba(33, 150, 243, 0.1);
-  }
-  .auth-left .logo-svg {
-    width: 130px; height: 130px; margin-bottom: 25px;
-    filter: drop-shadow(0 0 20px var(--accent));
-    animation: logoFloat 4s ease-in-out infinite;
-  }
-  @keyframes logoFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+  #authScreen { position: fixed; inset: 0; z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px; }
+  .auth-card { position: relative; display: grid; grid-template-columns: 1fr 1fr; width: 100%; max-width: 960px; min-height: 560px; background: rgba(10, 18, 28, 0.95); border: 1px solid rgba(33, 150, 243, 0.15); border-radius: 22px; box-shadow: 0 0 60px rgba(0, 140, 255, 0.12); overflow: hidden; }
+  .auth-left { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; text-align: center; border-right: 1px solid rgba(33, 150, 243, 0.1); }
+  .auth-left .logo-svg { width: 130px; height: 130px; margin-bottom: 25px; filter: drop-shadow(0 0 15px var(--accent)); }
   .auth-left h1 { color: #e6f2ff; font-size: 26px; letter-spacing: 3px; margin-bottom: 6px; font-weight: 700; }
   .auth-left h1 span { color: var(--accent); }
   .auth-left p { color: #8a94a6; font-size: 14px; letter-spacing: 2px; text-transform: uppercase; }
-
   .auth-right { display: flex; align-items: center; justify-content: center; padding: 40px; }
   .form-box { width: 100%; max-width: 340px; }
   .form-box h2 { font-size: 28px; color: #fff; margin-bottom: 25px; text-align: center; letter-spacing: 1px; }
   .form-box .field { position: relative; margin-bottom: 14px; }
-  .form-box input {
-    width: 100%; padding: 14px 42px 14px 14px;
-    background: rgba(20, 30, 45, 0.8); border: 1px solid rgba(33, 150, 243, 0.2);
-    border-radius: 10px; color: #e6e6e6; font-size: 14px; outline: none; transition: .2s;
-  }
+  .form-box input { width: 100%; padding: 14px 42px 14px 14px; background: rgba(20, 30, 45, 0.85); border: 1px solid rgba(33, 150, 243, 0.2); border-radius: 10px; color: #e6e6e6; font-size: 14px; outline: none; transition: .2s; }
   .form-box input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.12); }
   .form-box input::placeholder { color: #5a6473; }
-  .form-box .eye {
-    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-    cursor: pointer; color: #5a6473; font-size: 16px; user-select: none; transition: .2s;
-  }
+  .form-box .eye { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #5a6473; font-size: 16px; user-select: none; transition: .2s; }
   .form-box .eye:hover { color: var(--accent); }
-
   .pw-strength { display: flex; gap: 4px; margin: -6px 0 12px; opacity: 0; transition: .3s; }
   .pw-strength.show { opacity: 1; }
   .pw-strength div { flex: 1; height: 4px; border-radius: 2px; background: #1f2a44; transition: .3s; }
   .pw-strength.weak div:nth-child(1) { background: #ff5252; }
   .pw-strength.medium div:nth-child(1), .pw-strength.medium div:nth-child(2) { background: #ffc107; }
   .pw-strength.strong div { background: #4caf50; }
-
   .forgot { text-align: right; font-size: 12px; color: var(--accent); margin-bottom: 18px; cursor: pointer; display: block; }
   .forgot:hover { text-decoration: underline; }
   .remember-row { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; font-size: 13px; color: #8a94a6; }
   .remember-row input { width: auto; margin: 0; cursor: pointer; }
-
-  .btn-main {
-    width: 100%; padding: 14px;
-    background: linear-gradient(135deg, #1a5c48, #2e8b6a);
-    color: #d4f5e6; border: 1px solid rgba(76, 175, 80, 0.3);
-    border-radius: 10px; font-size: 15px; font-weight: 600; letter-spacing: 1px;
-    cursor: pointer; transition: .25s; display: flex; align-items: center; justify-content: center; gap: 8px;
-  }
-  .btn-main:hover { background: linear-gradient(135deg, #216e55, #3aa87f); box-shadow: 0 0 25px rgba(46, 139, 106, 0.4); }
+  .btn-main { width: 100%; padding: 14px; background: linear-gradient(135deg, #1a5c48, #2e8b6a); color: #d4f5e6; border: 1px solid rgba(76, 175, 80, 0.3); border-radius: 10px; font-size: 15px; font-weight: 600; letter-spacing: 1px; cursor: pointer; transition: .25s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .btn-main:hover { background: linear-gradient(135deg, #216e55, #3aa87f); }
   .btn-main:disabled { opacity: 0.6; cursor: not-allowed; }
-  .btn-main .spinner {
-    width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3);
-    border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; display: none;
-  }
+  .btn-main .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; display: none; }
   .btn-main.loading .spinner { display: inline-block; }
   .btn-main.loading .btn-txt { display: none; }
   @keyframes spin { to { transform: rotate(360deg); } }
-
   .socials { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
-  .social-btn {
-    padding: 11px; border-radius: 10px;
-    background: rgba(20, 30, 45, 0.7); border: 1px solid rgba(33, 150, 243, 0.15);
-    color: #b8c4d4; font-size: 13px; cursor: pointer;
-    display: flex; align-items: center; justify-content: center; gap: 7px;
-    text-decoration: none; transition: .2s;
-  }
-  .social-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(33, 150, 243, 0.08); }
-
+  .social-btn { padding: 11px; border-radius: 10px; background: rgba(20, 30, 45, 0.85); border: 1px solid rgba(33, 150, 243, 0.15); color: #b8c4d4; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px; text-decoration: none; transition: .2s; }
+  .social-btn:hover { border-color: var(--accent); color: var(--accent); }
   .switch-mode { text-align: center; margin-top: 20px; font-size: 13px; color: #8a94a6; }
   .switch-mode span { color: var(--accent); cursor: pointer; font-weight: 600; }
   .switch-mode span:hover { text-decoration: underline; }
-
   .auth-msg { text-align: center; font-size: 13px; margin-top: 12px; min-height: 18px; }
-  .msg-err { color: #ff5252; }
-  .msg-ok  { color: #4caf50; }
-  .msg-info{ color: #ffc107; }
+  .msg-err { color: #ff5252; } .msg-ok { color: #4caf50; } .msg-info { color: #ffc107; }
 
-  /* ANA SİTE */
   #mainSite { display: none; position: relative; z-index: 5; min-height: 100vh; }
-
-  #burger {
-    position: fixed; top: 22px; left: 22px; z-index: 1001;
-    width: 46px; height: 46px;
-    background: rgba(10, 18, 28, 0.85); backdrop-filter: blur(10px);
-    border: 1px solid rgba(33, 150, 243, 0.25); border-radius: 10px;
-    cursor: pointer; display: flex; flex-direction: column;
-    justify-content: center; align-items: center; gap: 5px; transition: .25s;
-  }
-  #burger:hover { border-color: var(--accent); box-shadow: 0 0 20px rgba(33, 150, 243, 0.3); }
+  #burger { position: fixed; top: 22px; left: 22px; z-index: 1001; width: 46px; height: 46px; background: rgba(10, 18, 28, 0.95); border: 1px solid rgba(33, 150, 243, 0.25); border-radius: 10px; cursor: pointer; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 5px; transition: .25s; }
+  #burger:hover { border-color: var(--accent); }
   #burger div { width: 22px; height: 2px; background: var(--accent); transition: .3s; border-radius: 2px; }
   #burger.active div:nth-child(1) { transform: translateY(7px) rotate(45deg); }
   #burger.active div:nth-child(2) { opacity: 0; }
   #burger.active div:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-  #sidebar {
-    position: fixed; top: 0; left: -320px; width: 300px; height: 100vh; z-index: 1000;
-    background: rgba(8, 15, 25, 0.97); backdrop-filter: blur(15px);
-    border-right: 1px solid rgba(33, 150, 243, 0.15);
-    transition: left .3s ease; overflow-y: auto; padding: 85px 15px 20px;
-  }
+  #sidebar { position: fixed; top: 0; left: -320px; width: 300px; height: 100vh; z-index: 1000; background: rgba(8, 15, 25, 0.98); border-right: 1px solid rgba(33, 150, 243, 0.15); transition: left .3s ease; overflow-y: auto; padding: 85px 15px 20px; }
   #sidebar.open { left: 0; }
   #sidebar::-webkit-scrollbar { width: 6px; }
   #sidebar::-webkit-scrollbar-thumb { background: #1f2a44; border-radius: 3px; }
-
   .side-logo { text-align: center; padding: 0 0 15px; border-bottom: 1px solid rgba(33, 150, 243, 0.1); margin-bottom: 15px; }
   .side-logo svg { width: 55px; height: 55px; }
   .side-logo h3 { color: var(--accent); font-size: 14px; letter-spacing: 2px; margin-top: 8px; }
   .side-user { text-align: center; font-size: 12px; color: #5a6473; margin-top: 4px; word-break: break-all; }
-  .side-user .admin-badge {
-    display: inline-block; background: rgba(255, 193, 7, 0.15); color: #ffc107;
-    padding: 2px 8px; border-radius: 6px; font-size: 10px; margin-top: 5px; letter-spacing: 1px;
-  }
-  .quota-bar {
-    margin-top: 10px; background: rgba(33, 150, 243, 0.1); border-radius: 6px;
-    padding: 6px 10px; font-size: 11px; color: #8a94a6;
-  }
-  .quota-bar .qfill {
-    height: 4px; background: var(--accent); border-radius: 2px;
-    margin-top: 5px; transition: .3s;
-  }
+  .side-user .admin-badge { display: inline-block; background: rgba(255, 193, 7, 0.15); color: #ffc107; padding: 2px 8px; border-radius: 6px; font-size: 10px; margin-top: 5px; letter-spacing: 1px; }
+  .quota-bar { margin-top: 10px; background: rgba(33, 150, 243, 0.1); border-radius: 6px; padding: 6px 10px; font-size: 11px; color: #8a94a6; text-align: left; }
+  .quota-bar .qfill { height: 4px; background: var(--accent); border-radius: 2px; margin-top: 5px; transition: .3s; }
 
   .menu-title { color: #4a5568; font-size: 11px; letter-spacing: 2px; margin: 16px 6px 8px; text-transform: uppercase; font-weight: 600; }
-  .menu-item {
-    display: flex; align-items: center; gap: 10px;
-    width: 100%; padding: 12px 14px; margin-bottom: 6px;
-    background: rgba(17, 24, 39, 0.6); border: 1px solid rgba(31, 42, 68, 0.9);
-    border-radius: 9px; color: #cfd8e3; font-size: 13.5px;
-    cursor: pointer; text-align: left; transition: .2s; font-family: inherit;
-  }
-  .menu-item:hover { background: rgba(33, 150, 243, 0.1); border-color: var(--accent); color: var(--accent); transform: translateX(3px); }
+  .menu-item { display: flex; align-items: center; gap: 10px; width: 100%; padding: 12px 14px; margin-bottom: 6px; background: rgba(17, 24, 39, 0.6); border: 1px solid rgba(31, 42, 68, 0.9); border-radius: 9px; color: #cfd8e3; font-size: 13.5px; cursor: pointer; text-align: left; transition: .15s; font-family: inherit; }
+  .menu-item:hover { background: rgba(33, 150, 243, 0.1); border-color: var(--accent); color: var(--accent); }
   .menu-item.active { background: rgba(33, 150, 243, 0.15); border-color: var(--accent); color: var(--accent); }
   .menu-item .ico { font-size: 16px; }
-  .menu-item[disabled] { opacity: 0.4; cursor: not-allowed; }
 
-  #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 999; display: none; backdrop-filter: blur(2px); }
+  #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 999; display: none; }
   #overlay.show { display: block; }
 
-  #centerLogo {
-    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    text-align: center; z-index: 10; pointer-events: none; user-select: none; transition: opacity .4s;
-  }
-  #centerLogo .main-txt {
-    font-size: clamp(24px, 5vw, 58px); font-weight: 800; letter-spacing: 8px;
-    color: var(--accent); line-height: 1.15;
-    text-shadow: 0 0 20px var(--accent), 0 0 40px var(--accent);
-    animation: logoPulse 3s ease-in-out infinite;
-  }
+  #centerLogo { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 10; pointer-events: none; user-select: none; transition: opacity .3s; }
+  #centerLogo .main-txt { font-size: clamp(24px, 5vw, 58px); font-weight: 800; letter-spacing: 8px; color: var(--accent); line-height: 1.15; text-shadow: 0 0 20px var(--accent); }
   #centerLogo .sub-txt { font-size: clamp(11px, 1.6vw, 15px); color: #5a6473; letter-spacing: 6px; margin-top: 12px; text-transform: uppercase; }
-  #centerLogo .line { width: 80px; height: 2px; margin: 18px auto; background: linear-gradient(90deg, transparent, var(--accent), transparent); box-shadow: 0 0 15px var(--accent); }
-  @keyframes logoPulse {
-    0%, 100% { text-shadow: 0 0 20px var(--accent), 0 0 40px var(--accent); }
-    50%      { text-shadow: 0 0 30px var(--accent), 0 0 60px var(--accent); }
-  }
+  #centerLogo .line { width: 80px; height: 2px; margin: 18px auto; background: linear-gradient(90deg, transparent, var(--accent), transparent); }
   #centerLogo.hide { opacity: 0; }
 
-  #statsHome {
-    position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);
-    display: flex; gap: 20px; z-index: 9;
-  }
+  #statsHome { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); display: flex; gap: 20px; z-index: 9; }
   #statsHome.hide { display: none; }
-  .stat-mini {
-    background: rgba(11, 18, 30, 0.7); border: 1px solid rgba(33, 150, 243, 0.15);
-    padding: 10px 18px; border-radius: 10px; text-align: center; backdrop-filter: blur(10px);
-  }
+  .stat-mini { background: rgba(11, 18, 30, 0.9); border: 1px solid rgba(33, 150, 243, 0.15); padding: 10px 18px; border-radius: 10px; text-align: center; }
   .stat-mini .num { color: var(--accent); font-size: 20px; font-weight: 700; }
   .stat-mini .lbl { color: #5a6473; font-size: 10px; letter-spacing: 1px; margin-top: 2px; }
 
   #panel { max-width: 950px; margin: 0 auto; padding: 100px 22px 80px; display: none; }
-  #panel.show { display: block; animation: fadeUp .4s ease; }
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-
+  #panel.show { display: block; }
   .panel-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 12px; }
   .panel-head h2 { color: var(--accent); font-size: 22px; letter-spacing: 2px; display: flex; align-items: center; gap: 10px; }
   .panel-head h2 .ico { font-size: 24px; }
   .head-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-  .head-btn {
-    padding: 9px 16px; border-radius: 8px;
-    background: rgba(17, 24, 39, 0.7); border: 1px solid rgba(31, 42, 68, 0.9);
-    color: #cfd8e3; cursor: pointer; font-size: 12.5px; transition: .2s;
-  }
+  .head-btn { padding: 9px 16px; border-radius: 8px; background: rgba(17, 24, 39, 0.7); border: 1px solid rgba(31, 42, 68, 0.9); color: #cfd8e3; cursor: pointer; font-size: 12.5px; transition: .15s; }
   .head-btn:hover { border-color: var(--accent); color: var(--accent); }
   .head-btn.danger { border-color: rgba(255, 82, 82, 0.3); color: #ff5252; }
   .head-btn.danger:hover { background: rgba(255, 82, 82, 0.1); border-color: #ff5252; }
 
-  .query-box {
-    background: rgba(11, 18, 30, 0.75); backdrop-filter: blur(15px);
-    border: 1px solid rgba(33, 150, 243, 0.12); border-radius: 14px;
-    padding: 26px; margin-bottom: 20px;
-  }
+  .query-box { background: rgba(11, 18, 30, 0.9); border: 1px solid rgba(33, 150, 243, 0.12); border-radius: 14px; padding: 26px; margin-bottom: 20px; }
   .query-box label { display: block; color: #8a94a6; font-size: 12.5px; margin-bottom: 7px; letter-spacing: 0.5px; }
-  .query-box input, .query-box textarea, .query-box select {
-    width: 100%; padding: 13px;
-    background: rgba(10, 15, 25, 0.9); border: 1px solid rgba(31, 42, 68, 0.9);
-    border-radius: 9px; color: #e6e6e6; font-size: 14.5px; outline: none;
-    margin-bottom: 14px; transition: .2s; font-family: inherit; resize: vertical;
-  }
-  .query-box input:focus, .query-box textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.12); }
-  .query-box button.btn-query {
-    padding: 12px 32px; background: linear-gradient(135deg, var(--accent2), var(--accent));
-    color: #fff; border: none; border-radius: 9px;
-    font-size: 14px; cursor: pointer; font-weight: 600; letter-spacing: 1px; transition: .25s;
-    display: inline-flex; align-items: center; gap: 8px;
-  }
-  .query-box button.btn-query:hover { box-shadow: 0 0 25px var(--accent); }
-  .query-box button.btn-query:disabled { background: #374151; cursor: not-allowed; box-shadow: none; }
-
+  .query-box input, .query-box textarea, .query-box select { width: 100%; padding: 13px; background: rgba(10, 15, 25, 0.9); border: 1px solid rgba(31, 42, 68, 0.9); border-radius: 9px; color: #e6e6e6; font-size: 14.5px; outline: none; margin-bottom: 14px; transition: .2s; font-family: inherit; resize: vertical; }
+  .query-box input:focus, .query-box textarea:focus { border-color: var(--accent); }
+  .query-box button.btn-query { padding: 12px 32px; background: linear-gradient(135deg, var(--accent2), var(--accent)); color: #fff; border: none; border-radius: 9px; font-size: 14px; cursor: pointer; font-weight: 600; letter-spacing: 1px; transition: .2s; display: inline-flex; align-items: center; gap: 8px; }
+  .query-box button.btn-query:hover { opacity: 0.9; }
+  .query-box button.btn-query:disabled { background: #374151; cursor: not-allowed; }
   .bulk-note { color: #ffc107; font-size: 12px; margin-bottom: 10px; }
 
   .result-actions { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
-  .result-actions button {
-    padding: 7px 14px; border-radius: 7px;
-    background: rgba(17, 24, 39, 0.8); border: 1px solid rgba(31, 42, 68, 0.9);
-    color: #b8c4d4; font-size: 12px; cursor: pointer; transition: .2s;
-  }
+  .result-actions button { padding: 7px 14px; border-radius: 7px; background: rgba(17, 24, 39, 0.8); border: 1px solid rgba(31, 42, 68, 0.9); color: #b8c4d4; font-size: 12px; cursor: pointer; transition: .15s; }
   .result-actions button:hover { border-color: var(--accent); color: var(--accent); }
-
-  .result-box {
-    background: rgba(6, 10, 18, 0.9); border: 1px solid rgba(33, 150, 243, 0.15);
-    border-radius: 12px; padding: 20px; max-height: 520px; overflow: auto;
-  }
+  .result-box { background: rgba(6, 10, 18, 0.95); border: 1px solid rgba(33, 150, 243, 0.15); border-radius: 12px; padding: 20px; max-height: 520px; overflow: auto; }
   .result-box::-webkit-scrollbar { width: 7px; height: 7px; }
   .result-box::-webkit-scrollbar-thumb { background: #1f2a44; border-radius: 4px; }
-  .result-box pre {
-    color: #a5d6ff; font-size: 13px; white-space: pre-wrap; word-wrap: break-word;
-    font-family: 'Consolas', 'Courier New', monospace; line-height: 1.65;
-  }
-
+  .result-box pre { color: #a5d6ff; font-size: 13px; white-space: pre-wrap; word-wrap: break-word; font-family: 'Consolas', 'Courier New', monospace; line-height: 1.65; }
   .result-table { width: 100%; border-collapse: collapse; font-size: 13px; color: #cfd8e3; }
   .result-table th, .result-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid rgba(33, 150, 243, 0.1); vertical-align: top; }
-  .result-table th { color: var(--accent); font-weight: 600; background: rgba(33, 150, 243, 0.06); position: sticky; top: 0; }
-  .result-table tr:hover td { background: rgba(33, 150, 243, 0.04); }
+  .result-table th { color: var(--accent); font-weight: 600; background: rgba(33, 150, 243, 0.06); }
   .result-table td.key { color: #8a94a6; width: 180px; }
 
   .loading { color: #ffc107; font-size: 14px; padding: 15px 0; }
@@ -299,73 +146,32 @@
   .success-txt { color: #4caf50; font-size: 14px; padding: 12px 0; }
 
   #toastWrap { position: fixed; bottom: 25px; right: 25px; z-index: 2000; display: flex; flex-direction: column; gap: 10px; }
-  .toast {
-    background: rgba(11, 18, 30, 0.95); backdrop-filter: blur(10px);
-    border: 1px solid rgba(33, 150, 243, 0.3); border-left: 3px solid var(--accent);
-    color: #e6e6e6; padding: 13px 20px; border-radius: 9px;
-    font-size: 13px; min-width: 240px; box-shadow: 0 8px 30px rgba(0,0,0,0.4);
-    animation: toastIn .3s ease;
-  }
-  .toast.err { border-left-color: #ff5252; border-color: rgba(255,82,82,.3); }
-  .toast.ok  { border-left-color: #4caf50; border-color: rgba(76,175,80,.3); }
-  @keyframes toastIn { from { opacity: 0; transform: translateX(60px); } to { opacity: 1; transform: translateX(0); } }
+  .toast { background: rgba(11, 18, 30, 0.98); border: 1px solid rgba(33, 150, 243, 0.3); border-left: 3px solid var(--accent); color: #e6e6e6; padding: 13px 20px; border-radius: 9px; font-size: 13px; min-width: 240px; box-shadow: 0 8px 30px rgba(0,0,0,0.4); }
+  .toast.err { border-left-color: #ff5252; }
+  .toast.ok  { border-left-color: #4caf50; }
 
-  .modal-back {
-    position: fixed; inset: 0; z-index: 1500;
-    background: rgba(0,0,0,0.75); backdrop-filter: blur(4px);
-    display: none; align-items: center; justify-content: center; padding: 20px;
-  }
+  .modal-back { position: fixed; inset: 0; z-index: 1500; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; padding: 20px; }
   .modal-back.show { display: flex; }
-  .modal {
-    background: rgba(11, 18, 30, 0.98); border: 1px solid rgba(33, 150, 243, 0.25);
-    border-radius: 14px; padding: 28px; width: 100%; max-width: 560px;
-    box-shadow: 0 0 50px rgba(33, 150, 243, 0.15);
-    max-height: 85vh; overflow-y: auto;
-  }
+  .modal { background: rgba(11, 18, 30, 0.98); border: 1px solid rgba(33, 150, 243, 0.25); border-radius: 14px; padding: 28px; width: 100%; max-width: 560px; max-height: 85vh; overflow-y: auto; }
   .modal h3 { color: var(--accent); margin-bottom: 16px; font-size: 19px; }
   .modal p { color: #b8c4d4; font-size: 14px; line-height: 1.6; margin-bottom: 14px; }
   .modal label { display: block; color: #8a94a6; font-size: 12px; margin: 10px 0 5px; }
-  .modal input, .modal textarea, .modal select {
-    width: 100%; padding: 11px; background: rgba(10,15,25,0.9);
-    border: 1px solid rgba(31, 42, 68, 0.9); border-radius: 8px;
-    color: #e6e6e6; font-size: 14px; outline: none; font-family: inherit;
-  }
+  .modal input, .modal textarea, .modal select { width: 100%; padding: 11px; background: rgba(10,15,25,0.9); border: 1px solid rgba(31, 42, 68, 0.9); border-radius: 8px; color: #e6e6e6; font-size: 14px; outline: none; font-family: inherit; }
   .modal input:focus, .modal textarea:focus { border-color: var(--accent); }
   .modal .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; }
-  .modal button {
-    padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 13px;
-    border: 1px solid rgba(31, 42, 68, 0.9); background: rgba(17, 24, 39, 0.8); color: #cfd8e3; transition: .2s;
-  }
+  .modal button { padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 13px; border: 1px solid rgba(31, 42, 68, 0.9); background: rgba(17, 24, 39, 0.8); color: #cfd8e3; transition: .15s; }
   .modal button:hover { border-color: var(--accent); color: var(--accent); }
   .modal button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-  .modal button.primary:hover { background: var(--accent2); }
 
   .user-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; }
   .user-table th, .user-table td { padding: 10px; text-align: left; border-bottom: 1px solid rgba(33, 150, 243, 0.1); }
   .user-table th { color: var(--accent); font-weight: 600; }
-  .user-table .del-btn {
-    padding: 5px 10px; font-size: 11px; background: rgba(255,82,82,.15);
-    border: 1px solid rgba(255,82,82,.4); color: #ff5252; border-radius: 6px; cursor: pointer;
-  }
+  .user-table .del-btn { padding: 5px 10px; font-size: 11px; background: rgba(255,82,82,.15); border: 1px solid rgba(255,82,82,.4); color: #ff5252; border-radius: 6px; cursor: pointer; }
   .user-table .del-btn:hover { background: #ff5252; color: #fff; }
 
-  .fav-chip {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: rgba(33, 150, 243, 0.1); border: 1px solid rgba(33, 150, 243, 0.3);
-    padding: 6px 12px; border-radius: 20px; font-size: 12px; color: var(--accent);
-    margin: 4px 6px 4px 0; cursor: pointer; transition: .2s;
-  }
-  .fav-chip:hover { background: rgba(33, 150, 243, 0.2); }
-  .fav-chip .del { color: #ff5252; font-weight: bold; }
-
-  .search-in-result {
-    width: 100%; padding: 10px 14px; margin-bottom: 12px;
-    background: rgba(10,15,25,0.9); border: 1px solid rgba(31, 42, 68, 0.9);
-    border-radius: 8px; color: #e6e6e6; font-size: 13px; outline: none;
-  }
+  .search-in-result { width: 100%; padding: 10px 14px; margin-bottom: 12px; background: rgba(10,15,25,0.9); border: 1px solid rgba(31, 42, 68, 0.9); border-radius: 8px; color: #e6e6e6; font-size: 13px; outline: none; }
   .search-in-result:focus { border-color: var(--accent); }
 
-  /* Mobil */
   @media (max-width: 760px) {
     .auth-card { grid-template-columns: 1fr; min-height: auto; }
     .auth-left { padding: 30px 20px 15px; border-right: none; border-bottom: 1px solid rgba(33,150,243,.1); }
@@ -395,31 +201,23 @@
   </svg>
 </div>
 
-<!-- TR ENGELLEME -->
 <div id="blockScreen">
   <div class="block-box">
     <div class="icon">🚫</div>
     <h1>ERİŞİM ENGELLENDİ</h1>
     <p>Bu siteye Türkiye'den erişim engellenmiştir.</p>
     <p>Giriş yapabilmek için <b>VPN</b> kullanmanız gerekmektedir.</p>
-    <div class="vpn-tip">
-      💡 VPN açtıktan sonra sayfayı yenileyin. Ülke olarak TR dışı bir sunucu seçin.
-    </div>
+    <div class="vpn-tip">💡 VPN açtıktan sonra sayfayı yenileyin.</div>
   </div>
 </div>
 
-<!-- AUTH -->
-<div id="authScreen" style="display:none;">
+<div id="authScreen">
   <div class="auth-card">
     <div class="auth-left">
       <svg class="logo-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
         <defs>
-          <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="var(--accent)"/><stop offset="1" stop-color="var(--accent2)"/>
-          </linearGradient>
-          <linearGradient id="g2" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="var(--accent-light)"/><stop offset="1" stop-color="var(--accent)"/>
-          </linearGradient>
+          <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--accent)"/><stop offset="1" stop-color="var(--accent2)"/></linearGradient>
+          <linearGradient id="g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--accent-light)"/><stop offset="1" stop-color="var(--accent)"/></linearGradient>
         </defs>
         <path d="M100 15 L170 45 L170 110 Q170 160 100 185 Q30 160 30 110 L30 45 Z" fill="url(#g1)" stroke="var(--accent-light)" stroke-width="2"/>
         <path d="M100 35 L152 58 L152 108 Q152 148 100 168 Q48 148 48 108 L48 58 Z" fill="#05080f" stroke="var(--accent)" stroke-width="1.2"/>
@@ -428,64 +226,38 @@
       <h1>BREZERS <span>SORGU</span></h1>
       <p>Hoşgeldiniz</p>
     </div>
-
     <div class="auth-right">
       <div class="form-box">
         <h2 id="formTitle">Giriş Yap</h2>
-
-        <!-- LOGIN -->
         <div id="loginForm">
           <div class="field"><input type="text" id="loginEmail" placeholder="Email Adresi" autocomplete="off"></div>
-          <div class="field">
-            <input type="password" id="loginPass" placeholder="Şifre" autocomplete="off">
-            <span class="eye" data-target="loginPass">👁</span>
-          </div>
+          <div class="field"><input type="password" id="loginPass" placeholder="Şifre" autocomplete="off"><span class="eye" data-target="loginPass">👁</span></div>
           <a class="forgot" id="forgotLink">Şifremi Unuttum</a>
-          <div class="remember-row">
-            <input type="checkbox" id="rememberMe">
-            <label for="rememberMe">Beni hatırla</label>
-          </div>
-          <button class="btn-main" id="loginBtn">
-            <span class="spinner"></span>
-            <span class="btn-txt">↪ Giriş Yap</span>
-          </button>
+          <div class="remember-row"><input type="checkbox" id="rememberMe"><label for="rememberMe">Beni hatırla</label></div>
+          <button class="btn-main" id="loginBtn"><span class="spinner"></span><span class="btn-txt">↪ Giriş Yap</span></button>
           <div class="socials">
             <a class="social-btn" href="https://t.me/Hzrox" target="_blank">✈ Telegram</a>
             <a class="social-btn" href="https://discord.com/users/hazretirox" target="_blank">💬 Discord</a>
           </div>
           <div class="switch-mode">Henüz üye değil misiniz? <span id="toRegister">Kaydolun</span></div>
         </div>
-
-        <!-- REGISTER -->
         <div id="registerForm" style="display:none;">
           <div class="field"><input type="text" id="regEmail" placeholder="Email Adresi" autocomplete="off"></div>
-          <div class="field">
-            <input type="password" id="regPass" placeholder="Şifre" autocomplete="off">
-            <span class="eye" data-target="regPass">👁</span>
-          </div>
+          <div class="field"><input type="password" id="regPass" placeholder="Şifre" autocomplete="off"><span class="eye" data-target="regPass">👁</span></div>
           <div class="pw-strength" id="pwStrength"><div></div><div></div><div></div></div>
-          <div class="field">
-            <input type="password" id="regPass2" placeholder="Şifre Tekrarı" autocomplete="off">
-            <span class="eye" data-target="regPass2">👁</span>
-          </div>
-          <button class="btn-main" id="registerBtn">
-            <span class="spinner"></span>
-            <span class="btn-txt">✓ Kayıt Ol</span>
-          </button>
+          <div class="field"><input type="password" id="regPass2" placeholder="Şifre Tekrarı" autocomplete="off"><span class="eye" data-target="regPass2">👁</span></div>
+          <button class="btn-main" id="registerBtn"><span class="spinner"></span><span class="btn-txt">✓ Kayıt Ol</span></button>
           <div class="switch-mode">Zaten hesabın var mı? <span id="toLogin">Giriş Yap</span></div>
         </div>
-
         <div class="auth-msg" id="authMsg"></div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ANA SİTE -->
 <div id="mainSite">
   <div id="burger"><div></div><div></div><div></div></div>
   <div id="overlay"></div>
-
   <div id="sidebar">
     <div class="side-logo">
       <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
@@ -498,7 +270,6 @@
       <div id="adminBadgeWrap"></div>
       <div class="quota-bar" id="quotaBar"></div>
     </div>
-
     <div class="menu-title">Sorgular</div>
     <button class="menu-item" data-type="tc"><span class="ico">🪪</span> TC Sorgu</button>
     <button class="menu-item" data-type="aile"><span class="ico">👪</span> Aile</button>
@@ -510,41 +281,34 @@
     <button class="menu-item" data-type="isyeri"><span class="ico">🏢</span> İşyeri</button>
     <button class="menu-item" data-type="adsoyad"><span class="ico">🔎</span> Ad Soyad Arama</button>
     <button class="menu-item" data-type="bulk"><span class="ico">📦</span> Toplu Sorgu</button>
-
     <div class="menu-title">Kişisel</div>
     <button class="menu-item" data-type="favorites"><span class="ico">⭐</span> Favoriler</button>
     <button class="menu-item" data-type="history"><span class="ico">📜</span> Sorgu Geçmişi</button>
     <button class="menu-item" data-type="profile"><span class="ico">👤</span> Profilim</button>
     <button class="menu-item" data-type="compare"><span class="ico">⚖️</span> Karşılaştır</button>
-
     <div class="menu-title" id="adminMenuTitle" style="display:none;">Admin</div>
     <button class="menu-item" data-type="admin_users" id="adminUsersBtn" style="display:none;"><span class="ico">👥</span> Kullanıcılar</button>
     <button class="menu-item" data-type="admin_logs" id="adminLogsBtn" style="display:none;"><span class="ico">📊</span> Sorgu Logları</button>
     <button class="menu-item" data-type="admin_announce" id="adminAnnounceBtn" style="display:none;"><span class="ico">📢</span> Duyuru</button>
     <button class="menu-item" data-type="admin_maintenance" id="adminMaintBtn" style="display:none;"><span class="ico">🔧</span> Bakım Modu</button>
-
     <div class="menu-title">Ayarlar</div>
     <button class="menu-item" data-type="theme"><span class="ico">🎨</span> Tema</button>
     <button class="menu-item" data-type="devices"><span class="ico">📱</span> Cihazlarım</button>
     <button class="menu-item" data-type="settings"><span class="ico">⚙️</span> Ayarlar</button>
-
     <div class="menu-title">Hesap</div>
     <button class="menu-item" id="sideLogout"><span class="ico">🚪</span> Çıkış Yap</button>
   </div>
-
   <div id="centerLogo">
     <div class="main-txt">BREZERS SORGU<br>SİSTEMİ</div>
     <div class="line"></div>
     <div class="sub-txt">Güvenli Sorgu Paneli</div>
   </div>
-
   <div id="statsHome">
     <div class="stat-mini"><div class="num" id="statTotal">0</div><div class="lbl">TOPLAM</div></div>
     <div class="stat-mini"><div class="num" id="statToday">0</div><div class="lbl">BUGÜN</div></div>
     <div class="stat-mini"><div class="num" id="statQuota">100</div><div class="lbl">KALAN</div></div>
     <div class="stat-mini"><div class="num" id="statFav">0</div><div class="lbl">FAVORİ</div></div>
   </div>
-
   <div id="panel">
     <div class="panel-head">
       <h2><span class="ico" id="panelIco">🪪</span> <span id="panelTitle">TC Sorgu</span></h2>
@@ -561,14 +325,10 @@
 <div id="toastWrap"></div>
 <div class="modal-back" id="modalBack"><div class="modal" id="modalContent"></div></div>
 
-<!-- ============================================================
-     PARÇA 2 — JAVASCRIPT BUraya gelecek (sonraki mesajda)
-     ============================================================ -->
 <script>
 const API_KEY = "Hzrox_1faecd7b086a";
 const API_BASE = "https://searchulp.xyz/api";
 const DAILY_QUOTA = 100;
-
 const ADMIN = { email: "hazretirox@gmail.com", passHash: null };
 
 const ENDPOINTS = {
@@ -605,13 +365,20 @@ ADMIN.passHash = hash("hasan890");
 function getUsers() { try { return JSON.parse(localStorage.getItem("brezers_users") || "{}"); } catch(e) { return {}; } }
 function saveUsers(u) { localStorage.setItem("brezers_users", JSON.stringify(u)); }
 function getLogs() { try { return JSON.parse(localStorage.getItem("brezers_logs") || "[]"); } catch(e) { return []; } }
-function saveLogs(l) { localStorage.setItem("brezers_logs", JSON.stringify(l.slice(-500))); }
+function saveLogs(l) { localStorage.setItem("brezers_logs", JSON.stringify(l.slice(-200))); }
 function getHistory() { try { return JSON.parse(localStorage.getItem("brezers_history") || "[]"); } catch(e) { return []; } }
-function saveHistory(h) { localStorage.setItem("brezers_history", JSON.stringify(h.slice(-100))); }
+function saveHistory(h) { localStorage.setItem("brezers_history", JSON.stringify(h.slice(-50))); }
 function getFavs() { try { return JSON.parse(localStorage.getItem("brezers_favs_" + currentUser) || "[]"); } catch(e) { return []; } }
 function saveFavs(f) { localStorage.setItem("brezers_favs_" + currentUser, JSON.stringify(f)); }
 function getCache() { try { return JSON.parse(localStorage.getItem("brezers_cache") || "{}"); } catch(e) { return {}; } }
-function saveCache(c) { localStorage.setItem("brezers_cache", JSON.stringify(c)); }
+function saveCache(c) {
+  const keys = Object.keys(c);
+  if (keys.length > 50) {
+    keys.sort((a,b) => (c[a].ts||0) - (c[b].ts||0));
+    for (let i = 0; i < keys.length - 50; i++) delete c[keys[i]];
+  }
+  localStorage.setItem("brezers_cache", JSON.stringify(c));
+}
 function getQuota() {
   try {
     const q = JSON.parse(localStorage.getItem("brezers_quota_" + currentUser) || "null");
@@ -633,7 +400,7 @@ function toast(msg, type = "info") {
   el.className = "toast " + (type === "err" ? "err" : type === "ok" ? "ok" : "");
   el.textContent = msg;
   document.getElementById("toastWrap").appendChild(el);
-  setTimeout(() => { el.style.opacity = "0"; el.style.transition = ".3s"; setTimeout(() => el.remove(), 300); }, 2800);
+  setTimeout(() => { el.style.opacity = "0"; el.style.transition = ".3s"; setTimeout(() => el.remove(), 300); }, 2500);
 }
 
 let currentUser = null;
@@ -657,8 +424,6 @@ function refreshSession() {
   if (!currentUser) return;
   localStorage.setItem("brezers_session", JSON.stringify({ email: currentUser, isAdmin: currentIsAdmin, ts: Date.now() }));
 }
-document.addEventListener("click", refreshSession);
-document.addEventListener("keydown", refreshSession);
 function logout() { localStorage.removeItem("brezers_session"); location.reload(); }
 
 const authScreen = document.getElementById("authScreen");
@@ -723,7 +488,7 @@ function doLogin() {
   setTimeout(() => {
     if (email === ADMIN.email && hash(pass) === ADMIN.passHash) {
       setAuthMsg("Admin girişi başarılı!", "ok");
-      setTimeout(() => { setSession(email, true); btn.classList.remove("loading"); btn.disabled = false; }, 500);
+      setTimeout(() => { setSession(email, true); btn.classList.remove("loading"); btn.disabled = false; }, 400);
       return;
     }
     const users = getUsers();
@@ -736,8 +501,8 @@ function doLogin() {
       setAuthMsg("Şifre yanlış.", "err"); btn.classList.remove("loading"); btn.disabled = false; return;
     }
     setAuthMsg("Giriş başarılı!", "ok");
-    setTimeout(() => { setSession(email, false); btn.classList.remove("loading"); btn.disabled = false; }, 500);
-  }, 400);
+    setTimeout(() => { setSession(email, false); btn.classList.remove("loading"); btn.disabled = false; }, 400);
+  }, 300);
 }
 
 document.getElementById("registerBtn").addEventListener("click", doRegister);
@@ -759,8 +524,8 @@ function doRegister() {
     users[email] = { passHash: hash(pass), created: Date.now(), perms: "all" };
     saveUsers(users);
     setAuthMsg("Kayıt başarılı! Giriş yapılıyor...", "ok");
-    setTimeout(() => { setSession(email, false); btn.classList.remove("loading"); btn.disabled = false; }, 700);
-  }, 400);
+    setTimeout(() => { setSession(email, false); btn.classList.remove("loading"); btn.disabled = false; }, 600);
+  }, 300);
 }
 
 document.getElementById("forgotLink").addEventListener("click", () => {
@@ -838,7 +603,7 @@ function checkAnnounce() {
   if (seen === String(a.ts)) return;
   setTimeout(() => {
     openModal("📢 Duyuru", `<p>${escapeHtml(a.text)}</p>`, [{ label: "Anladım", primary: true, action: () => localStorage.setItem("brezers_announce_seen", String(a.ts)) }]);
-  }, 800);
+  }, 700);
 }
 
 function goHome() {
@@ -848,6 +613,7 @@ function goHome() {
   document.querySelectorAll(".menu-item").forEach(b => b.classList.remove("active"));
   document.getElementById("resultArea").innerHTML = "";
   updateStats(); updateQuotaUI();
+  refreshSession();
 }
 document.getElementById("backHome").addEventListener("click", goHome);
 
@@ -963,7 +729,7 @@ async function runQuery(type) {
   const cacheKey = type + "_" + JSON.stringify(values);
   const cache = getCache();
   if (cache[cacheKey] && Date.now() - cache[cacheKey].ts < 5 * 60 * 1000) {
-    toast("Önbellekten gösteriliyor (5 dk)", "ok");
+    toast("Önbellekten gösteriliyor", "ok");
     renderResult(cache[cacheKey].data, true, 200);
     playDing();
     return;
@@ -990,6 +756,7 @@ async function runQuery(type) {
     saveHistory(hist);
     renderResult(data, res.ok, res.status);
     playDing();
+    refreshSession();
   } catch(err) {
     resultArea.innerHTML = `<div class="error-txt">Bağlantı hatası: ${escapeHtml(err.message)}</div>`;
   } finally { btn.disabled = false; }
@@ -1002,7 +769,7 @@ function playDing() {
     const o = ctx.createOscillator(), g = ctx.createGain();
     o.connect(g); g.connect(ctx.destination);
     o.frequency.value = 880; o.type = "sine";
-    g.gain.setValueAtTime(0.15, ctx.currentTime);
+    g.gain.setValueAtTime(0.1, ctx.currentTime);
     g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
     o.start(); o.stop(ctx.currentTime + 0.3);
   } catch(e) {}
@@ -1148,7 +915,7 @@ function openFavorites() {
   document.getElementById("queryBox").innerHTML = "";
   const resultArea = document.getElementById("resultArea");
   const favs = getFavs();
-  if (!favs.length) { resultArea.innerHTML = '<div class="error-txt">Henüz favori yok. Bir sorgu yapıp "⭐ Favori" butonuna bas.</div>'; return; }
+  if (!favs.length) { resultArea.innerHTML = '<div class="error-txt">Henüz favori yok.</div>'; return; }
   let html = '<div class="result-box">';
   favs.forEach((f, i) => {
     html += `<div style="margin-bottom:12px;padding:12px;border:1px solid rgba(33,150,243,.2);border-radius:10px;">
@@ -1163,10 +930,7 @@ function openFavorites() {
   window._favs = favs;
 }
 window.showFav = (i) => { const f = window._favs[i]; if (f) renderResult(f.data, true, 200); };
-window.delFav = (i) => {
-  const favs = getFavs(); favs.splice(i, 1); saveFavs(favs);
-  toast("Silindi", "ok"); openFavorites(); updateStats();
-};
+window.delFav = (i) => { const favs = getFavs(); favs.splice(i, 1); saveFavs(favs); toast("Silindi", "ok"); openFavorites(); updateStats(); };
 
 function openProfile() {
   setPanelHeader("👤", "Profilim");
@@ -1186,10 +950,7 @@ function openProfile() {
   document.getElementById("changePassBtn").addEventListener("click", changePassword);
 }
 function changePassword() {
-  if (currentIsAdmin) {
-    document.getElementById("profMsg").innerHTML = '<div class="error-txt">Admin şifresi buradan değiştirilemez.</div>';
-    return;
-  }
+  if (currentIsAdmin) { document.getElementById("profMsg").innerHTML = '<div class="error-txt">Admin şifresi buradan değiştirilemez.</div>'; return; }
   const oldP = document.getElementById("profOldPass").value;
   const newP = document.getElementById("profNewPass").value;
   const newP2 = document.getElementById("profNewPass2").value;
@@ -1219,11 +980,7 @@ function openTheme() {
     <label>Bildirim Sesi</label>
     <div style="margin-bottom:16px;"><label style="display:inline-flex;align-items:center;gap:8px;color:#b8c4d4;"><input type="checkbox" id="soundToggle" ${snd?'checked':''} style="width:auto;"> Sorgu bitince ses çal</label></div>`;
   qBox.querySelectorAll("[data-theme]").forEach(b => {
-    b.addEventListener("click", () => {
-      applyTheme(b.dataset.theme);
-      toast("Tema: " + b.dataset.theme, "ok");
-      openTheme();
-    });
+    b.addEventListener("click", () => { applyTheme(b.dataset.theme); toast("Tema: " + b.dataset.theme, "ok"); openTheme(); });
   });
   document.getElementById("soundToggle").addEventListener("change", (e) => {
     localStorage.setItem("brezers_sound", e.target.checked ? "1" : "0");
@@ -1234,14 +991,9 @@ function openTheme() {
 
 function openDevices() {
   setPanelHeader("📱", "Cihazlarım");
-  const qBox = document.getElementById("queryBox");
-  qBox.innerHTML = "";
+  document.getElementById("queryBox").innerHTML = "";
   const devs = JSON.parse(localStorage.getItem("brezers_devices_" + currentUser) || "[]");
-  const cur = {
-    ua: navigator.userAgent,
-    ts: Date.now(),
-    id: navigator.userAgent + screen.width + "x" + screen.height
-  };
+  const cur = { ua: navigator.userAgent, ts: Date.now(), id: navigator.userAgent + screen.width + "x" + screen.height };
   if (!devs.find(d => d.id === cur.id)) { devs.push(cur); localStorage.setItem("brezers_devices_" + currentUser, JSON.stringify(devs.slice(-5))); }
   let html = '<div class="result-box"><table class="user-table"><thead><tr><th>Cihaz</th><th>Son Görülme</th></tr></thead><tbody>';
   devs.forEach(d => {
@@ -1316,9 +1068,7 @@ async function runBulk() {
       const logs = getLogs();
       logs.push({ user: currentUser, type, values, ts: Date.now(), status: res.ok ? "ok" : "err" });
       saveLogs(logs);
-    } catch(e) {
-      results.push({ tc: val, error: e.message });
-    }
+    } catch(e) { results.push({ tc: val, error: e.message }); }
     resultArea.innerHTML = `<div class="loading">⏳ ${i+1}/${list.length} işlendi...</div>`;
   }
   let html = '<div class="result-box"><table class="result-table"><thead><tr><th>TC</th><th>Sonuç</th></tr></thead><tbody>';
@@ -1327,8 +1077,7 @@ async function runBulk() {
   });
   html += "</tbody></table></div>";
   resultArea.innerHTML = html;
-  playDing();
-  updateStats(); updateQuotaUI();
+  playDing(); updateStats(); updateQuotaUI();
 }
 
 function openCompare() {
@@ -1337,9 +1086,9 @@ function openCompare() {
   const hist = getHistory().filter(h => h.user === currentUser).slice(-20).reverse();
   qBox.innerHTML = `
     <label>Sol (Geçmişten)</label>
-    <select id="cmpA">${hist.map((h,i) => `<option value="${i}">${new Date(h.ts).toLocaleString("tr-TR")} — ${escapeHtml(ENDPOINTS[h.type]?.title||h.type)} — ${escapeHtml(Object.values(h.values).filter(Boolean).join("/"))}</option>`).join("")}</select>
+    <select id="cmpA">${hist.map((h,i) => `<option value="${i}">${new Date(h.ts).toLocaleString("tr-TR")} — ${escapeHtml(ENDPOINTS[h.type]?.title||h.type)}</option>`).join("")}</select>
     <label>Sağ (Geçmişten)</label>
-    <select id="cmpB">${hist.map((h,i) => `<option value="${i}">${new Date(h.ts).toLocaleString("tr-TR")} — ${escapeHtml(ENDPOINTS[h.type]?.title||h.type)} — ${escapeHtml(Object.values(h.values).filter(Boolean).join("/"))}</option>`).join("")}</select>
+    <select id="cmpB">${hist.map((h,i) => `<option value="${i}">${new Date(h.ts).toLocaleString("tr-TR")} — ${escapeHtml(ENDPOINTS[h.type]?.title||h.type)}</option>`).join("")}</select>
     <button class="btn-query" id="cmpRun">KARŞILAŞTIR</button>`;
   document.getElementById("resultArea").innerHTML = "";
   document.getElementById("cmpRun").addEventListener("click", () => {
@@ -1416,7 +1165,7 @@ function openAdminAnnounce() {
   setPanelHeader("📢", "Duyuru Gönder");
   const qBox = document.getElementById("queryBox");
   qBox.innerHTML = `
-    <label>Duyuru Metni (boş bırakıp kaydet = duyuruyu sil)</label>
+    <label>Duyuru Metni (boş kaydet = sil)</label>
     <textarea id="annText" rows="4" placeholder="Duyuru yaz..."></textarea>
     <button class="btn-query" id="annSave">KAYDET</button>`;
   document.getElementById("resultArea").innerHTML = "";
@@ -1465,7 +1214,6 @@ document.getElementById("modalBack").addEventListener("click", e => {
   if (e.target.id === "modalBack") e.target.classList.remove("show");
 });
 
-/* TR ENGELLEME + BAŞLANGIÇ */
 async function checkCountry() {
   try {
     const res = await fetch("https://ipapi.co/json/");
@@ -1490,6 +1238,7 @@ window.addEventListener("DOMContentLoaded", async () => {
 document.addEventListener("keydown", (e) => {
   if (e.ctrlKey && e.key === "k") { e.preventDefault(); sidebar.classList.toggle("open"); overlay.classList.toggle("show"); }
   if (e.ctrlKey && e.key === "Enter") { const b = document.getElementById("queryBtn"); if (b) b.click(); }
-});</script>
+});
+</script>
 </body>
 </html>
