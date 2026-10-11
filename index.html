@@ -280,6 +280,9 @@
     <button class="menu-item" data-type="tcgsm"><span class="ico">☎️</span> TC → GSM</button>
     <button class="menu-item" data-type="isyeri"><span class="ico">🏢</span> İşyeri</button>
     <button class="menu-item" data-type="adsoyad"><span class="ico">🔎</span> Ad Soyad Arama</button>
+    <button class="menu-item" data-type="eokul"><span class="ico">🎓</span> e-Okul Sorgu</button>
+    <button class="menu-item" data-type="tcpro"><span class="ico">🔍</span> TC Pro Sorgu</button>
+    <button class="menu-item" data-type="tapu"><span class="ico">🏠</span> Tapu Sorgu</button>
     <button class="menu-item" data-type="bulk"><span class="ico">📦</span> Toplu Sorgu</button>
     <div class="menu-title">Kişisel</div>
     <button class="menu-item" data-type="favorites"><span class="ico">⭐</span> Favoriler</button>
@@ -350,7 +353,10 @@ const ENDPOINTS = {
       { id: "dogumtarihi", label: "Doğum Tarihi (ops.)", placeholder: "GG.AA.YYYY" }
     ],
     path: () => null
-  }
+  },
+  eokul:  { title: "e-Okul Sorgu", ico: "🎓", inputs: [{ id: "tc", label: "TC Kimlik No", placeholder: "11 haneli TC" }], custom: true, url: v => `https://apiv2.ajaxsystems.fun/eokul.php?tc=${v.tc}` },
+  tcpro:  { title: "TC Pro Sorgu", ico: "🔍", inputs: [{ id: "tc", label: "TC Kimlik No", placeholder: "11 haneli TC" }], custom: true, url: v => `https://apiv2.ajaxsystems.fun/tcpro.php?tc=${v.tc}` },
+  tapu:   { title: "Tapu Sorgu",   ico: "🏠", inputs: [{ id: "tc", label: "TC Kimlik No", placeholder: "11 haneli TC" }], custom: true, url: v => `https://apiv2.ajaxsystems.fun/tapu.php?tc=${v.tc}` }
 };
 
 function hash(str) {
@@ -716,7 +722,9 @@ async function runQuery(type) {
   }
 
   let url = "";
-  if (type === "adsoyad") {
+  if (ep.custom) {
+    url = ep.url(values);
+  } else if (type === "adsoyad") {
     url = `${API_BASE}/adsoyad?ad=${encodeURIComponent(values.ad)}&soyad=${encodeURIComponent(values.soyad)}`;
     if (values.il) url += `&il=${encodeURIComponent(values.il)}`;
     if (values.ilce) url += `&ilce=${encodeURIComponent(values.ilce)}`;
@@ -1238,7 +1246,6 @@ window.addEventListener("DOMContentLoaded", async () => {
 document.addEventListener("keydown", (e) => {
   if (e.ctrlKey && e.key === "k") { e.preventDefault(); sidebar.classList.toggle("open"); overlay.classList.toggle("show"); }
   if (e.ctrlKey && e.key === "Enter") { const b = document.getElementById("queryBtn"); if (b) b.click(); }
-});
-</script>
+});</script>
 </body>
 </html>
