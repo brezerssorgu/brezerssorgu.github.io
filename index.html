@@ -296,7 +296,15 @@
     <button class="menu-item" data-type="vesika"><span class="ico">🖼️</span> Vesika Sorgu</button>
     <button class="menu-item" data-type="sgk"><span class="ico">🏥</span> SGK Sorgu</button>
     <button class="menu-item" data-type="logurl"><span class="ico">🌐</span> Log Sorgu</button>
+    <button class="menu-item" data-type="ip"><span class="ico">🌍</span> IP Sorgu</button>
     <button class="menu-item" data-type="bulk"><span class="ico">📦</span> Toplu Sorgu</button>
+    
+    <div class="menu-title">Eğlence</div>
+    <button class="menu-item" data-type="kumarhane"><span class="ico">🎰</span> Kumarhane (Demo)</button>
+    <button class="menu-item" data-type="meme"><span class="ico">🍈</span> Meme Sorgu</button>
+    <button class="menu-item" data-type="yarak"><span class="ico">🍆</span> Yarak Sorgu</button>
+    <button class="menu-item" data-type="am"><span class="ico">🌸</span> Am Sorgu</button>
+
     <div class="menu-title">Kişisel</div>
     <button class="menu-item" data-type="favorites"><span class="ico">⭐</span> Favoriler</button>
     <button class="menu-item" data-type="history"><span class="ico">📜</span> Sorgu Geçmişi</button>
@@ -373,7 +381,11 @@ const ENDPOINTS = {
   tapu:   { title: "Tapu Sorgu",   ico: "🏠", inputs: [{ id: "tc", label: "TC Kimlik No", placeholder: "11 haneli TC" }], custom: true, url: v => `https://apiv2.ajaxsystems.fun/tapu.php?tc=${v.tc}` },
   vesika: { title: "Vesika Sorgu", ico: "🖼️", inputs: [{ id: "tc", label: "TC Kimlik No", placeholder: "11 haneli TC" }], custom: true, render: "vesika", url: v => `${SOLIDAR_BASE}/vesika.php?tc=${v.tc}` },
   sgk:    { title: "SGK Sorgu",    ico: "🏥", inputs: [{ id: "tc", label: "TC Kimlik No", placeholder: "11 haneli TC" }], custom: true, render: "sgk", url: v => `${SOLIDAR_BASE}/sgk.php?tc=${v.tc}` },
-  logurl: { title: "Log Sorgu",    ico: "🌐", inputs: [{ id: "url", label: "Domain / URL", placeholder: "ornek.com" }], custom: true, render: "log", url: v => `${SOLIDAR_BASE}/log.php?url=${encodeURIComponent(v.url)}` }
+  logurl: { title: "Log Sorgu",    ico: "🌐", inputs: [{ id: "url", label: "Domain / URL", placeholder: "ornek.com" }], custom: true, render: "log", url: v => `${SOLIDAR_BASE}/log.php?url=${encodeURIComponent(v.url)}` },
+  ip:     { title: "IP Sorgu",     ico: "🌍", inputs: [{ id: "ip", label: "IP Adresi", placeholder: "örn: 8.8.8.8" }], custom: true, url: v => `https://ipapi.co/${v.ip}/json/` },
+  meme:   { title: "Meme Sorgu",   ico: "🍈", inputs: [{ id: "tc", label: "TC Kimlik No", placeholder: "11 haneli TC" }], custom: true, render: "meme", url: () => null },
+  yarak:  { title: "Yarak Sorgu",  ico: "🍆", inputs: [{ id: "tc", label: "TC Kimlik No", placeholder: "11 haneli TC" }], custom: true, render: "yarak", url: () => null },
+  am:     { title: "Am Sorgu",     ico: "🌸", inputs: [{ id: "renk", label: "Renk", placeholder: "örn: pembe, kahverengi" }], custom: true, render: "am", url: () => null }
 };
 
 function hash(str) {
@@ -413,6 +425,29 @@ function getQuota() {
 function saveQuota(q) { localStorage.setItem("brezers_quota_" + currentUser, JSON.stringify(q)); }
 function getAnnounce() { try { return JSON.parse(localStorage.getItem("brezers_announce") || "null"); } catch(e) { return null; } }
 function getMaint() { return localStorage.getItem("brezers_maint") === "1"; }
+
+// ---- KUMARHANE JETON SİSTEMİ ----
+function getJeton() {
+  try {
+    const j = JSON.parse(localStorage.getItem("brezers_jeton_" + currentUser) || "null");
+    const today = new Date().toDateString();
+    if (!j || j.date !== today) return { date: today, amount: 1000 };
+    return j;
+  } catch(e) { return { date: new Date().toDateString(), amount: 1000 }; }
+}
+function saveJeton(j) { localStorage.setItem("brezers_jeton_" + currentUser, JSON.stringify(j)); }
+function updateJetonUI() {
+  const el = document.getElementById("jetonDisplay");
+  if (el) el.textContent = "🪙 " + getJeton().amount;
+}
+function addJeton(amount) {
+  const j = getJeton();
+  j.amount += amount;
+  if (j.amount < 0) j.amount = 0;
+  saveJeton(j);
+  updateJetonUI();
+  return j.amount;
+}
 
 function escapeHtml(s) {
   return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
@@ -667,6 +702,7 @@ document.querySelectorAll(".menu-item[data-type]").forEach(btn => {
     if (type === "admin_logs") return openAdminLogs();
     if (type === "admin_announce") return openAdminAnnounce();
     if (type === "admin_maintenance") return openAdminMaint();
+    if (type === "kumarhane") return openKumarhane();
     if (ENDPOINTS[type]) return openPanel(type);
   });
 });
@@ -714,7 +750,6 @@ function incQuota() {
 }
 
 async function smartFetch(url, options = {}) {
-  // 1. Direkt dene
   try {
     const res = await fetch(url, options);
     if (!res.ok) throw new Error("HTTP " + res.status);
@@ -722,34 +757,26 @@ async function smartFetch(url, options = {}) {
     try { return { ok: true, data: JSON.parse(text) }; } 
     catch (e) { return { ok: true, data: { raw: text } }; }
   } catch (directErr) {
-    // 2. Direkt patlarsa proxy'leri sırayla dene
     const proxies = [
       (u) => `https://api.cors.lol/?url=${encodeURIComponent(u)}`,
       (u) => `https://corsproxy.io/?${encodeURIComponent(u)}`,
       (u) => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`
     ];
-
     for (const makeProxyUrl of proxies) {
       try {
         const proxyUrl = makeProxyUrl(url);
         const res = await fetch(proxyUrl, { headers: { "Accept": "application/json" } });
         if (!res.ok) continue;
         const text = await res.text();
-        
         try { 
           const data = JSON.parse(text);
-          // allorigins bazen {contents: "..."} döner
           if (data && data.contents) {
             try { return { ok: true, data: JSON.parse(data.contents) }; } 
             catch(e) { return { ok: true, data: { raw: data.contents } }; }
           }
           return { ok: true, data };
-        } catch (e) { 
-          return { ok: true, data: { raw: text } }; 
-        }
-      } catch (proxyErr) {
-        continue; // patladı, sıradakine geç
-      }
+        } catch (e) { return { ok: true, data: { raw: text } }; }
+      } catch (proxyErr) { continue; }
     }
     throw new Error("Bağlantı hatası: Tüm proxy'ler denendi, API'ye ulaşılamadı.");
   }
@@ -765,11 +792,17 @@ async function runQuery(type) {
     const el = document.getElementById("inp_" + inp.id);
     values[inp.id] = el ? el.value.trim() : "";
   }
+  
   if (type === "adsoyad") {
     if (!values.ad || !values.soyad) { resultArea.innerHTML = '<div class="error-txt">Ad ve Soyad zorunlu.</div>'; return; }
   } else if (type === "logurl") {
     if (!values.url) { resultArea.innerHTML = '<div class="error-txt">Domain / URL gerekli.</div>'; return; }
     values.url = values.url.replace(/^https?:\/\//i, "").replace(/\/+$/, "");
+  } else if (["meme", "yarak"].includes(type)) {
+    values.tc = values.tc.replace(/\D/g, "");
+    if (values.tc.length !== 11) { resultArea.innerHTML = '<div class="error-txt">TC 11 haneli olmalı.</div>'; return; }
+  } else if (type === "am") {
+    if (!values.renk) { resultArea.innerHTML = '<div class="error-txt">Lütfen bir renk gir.</div>'; return; }
   } else {
     const first = ep.inputs[0].id;
     if (!values[first]) { resultArea.innerHTML = '<div class="error-txt">Lütfen alanı doldur.</div>'; return; }
@@ -781,6 +814,55 @@ async function runQuery(type) {
       values.gsm = values.gsm.replace(/\D/g, "").replace(/^90/, "").replace(/^0/, "");
       if (values.gsm.length !== 10) { resultArea.innerHTML = '<div class="error-txt">GSM 10 haneli olmalı (5XXXXXXXXX).</div>'; return; }
     }
+  }
+
+  // Eğlence sorguları
+  if (["meme", "yarak", "am"].includes(type)) {
+    let fakeData = {};
+    const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+    if (type === "meme") {
+      const bedenler = ["75A","75B","80A","80B","80C","85A","85B","85C","85D","90B","90C","90D","95C","95D","95E","100D","100E","105E"];
+      const secilen = bedenler[rand(0, bedenler.length - 1)];
+      fakeData = {
+        "TC": values.tc,
+        "Meme Bedeni": secilen,
+        "Tahmini Göğüs Altı (cm)": secilen.slice(0,2),
+        "Tahmini Cup": secilen.slice(2),
+        "Not": "Bu tamamen eğlence amaçlı rastgele bir sonuçtur."
+      };
+    } else if (type === "yarak") {
+      const cm = rand(8, 22);
+      fakeData = {
+        "TC": values.tc,
+        "Uzunluk (cm)": cm,
+        "Çap (cm)": (Math.random() * 2.5 + 2.5).toFixed(1),
+        "Durum": cm > 16 ? "Maşallah" : cm > 12 ? "Ortalama" : "Geliştirilmeli",
+        "Not": "Bu tamamen eğlence amaçlı rastgele bir sonuçtur."
+      };
+    } else if (type === "am") {
+      const renk = (values.renk || "").toLowerCase();
+      const renkMap = {
+        "pembe": "Klasik pembe, sağlıklı görünüm 🌸",
+        "kahverengi": "Doğal kahverengi ton 🌰",
+        "siyah": "Egzotik siyah ton 🖤",
+        "kırmızı": "Canlı kırmızı, enerjik 💋",
+        "beyaz": "Nadir beyaz ton, özel 🤍",
+        "mor": "Mor, sıra dışı 💜",
+        "sarı": "Sarı, dikkat çekici 💛",
+        "yeşil": "Yeşil, doğal 💚"
+      };
+      fakeData = {
+        "Girilen Renk": values.renk,
+        "Yorum": renkMap[renk] || "Bu renk pek yaygın değil, ilginç bir seçim!",
+        "Not": "Bu tamamen eğlence amaçlı rastgele bir sonuçtur."
+      };
+    }
+
+    renderResult(fakeData, true, 200, type);
+    incQuota();
+    toast("Eğlence sorgusu tamamlandı", "ok");
+    return;
   }
 
   let url = "";
@@ -843,7 +925,6 @@ function playDing() {
   } catch(e) {}
 }
 
-/* ---- RENDER KISMI ---- */
 function extractPayload(data) {
   if (data && typeof data === "object") {
     if ("veri" in data) return data.veri;
@@ -923,6 +1004,7 @@ function buildNiceView(data, type) {
   const payload = extractPayload(data);
   if (type === "vesika") return renderVesika(payload, data);
   if (type === "sgk") return renderKeyValue(payload, "SGK Kaydı");
+  if (["meme", "yarak", "am"].includes(type)) return renderKeyValue(payload, null);
   if (type === "logurl") return renderGeneric(payload);
   return renderGeneric(payload);
 }
@@ -1335,6 +1417,101 @@ function openAdminMaint() {
     toast("Bakım modu " + (on ? "kapatıldı" : "açıldı"), "ok");
     openAdminMaint();
   });
+}
+
+// ---- KUMARHANE ----
+function openKumarhane() {
+  setPanelHeader("🎰", "Kumarhane (Demo)");
+  const qBox = document.getElementById("queryBox");
+  qBox.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+      <div style="font-size:20px;color:var(--accent);font-weight:700;">Bakiye: <span id="jetonDisplay">🪙 ${getJeton().amount}</span></div>
+      <button class="head-btn" id="jetonYenile">🔄 Günlük Jeton Yenile</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <button class="head-btn" onclick="openSlot('seker')" style="padding:20px;font-size:15px;">🍭 Şeker Diyarı</button>
+      <button class="head-btn" onclick="openSlot('tanri')" style="padding:20px;font-size:15px;">⚡ Tanrılar Kapısı</button>
+      <button class="head-btn" onclick="openSlot('oluler')" style="padding:20px;font-size:15px;">📜 Ölüler Kitabı</button>
+      <button class="head-btn" onclick="openSlot('olum')" style="padding:20px;font-size:15px;">💀 Ölüm Ya Da Hayat</button>
+    </div>`;
+  document.getElementById("resultArea").innerHTML = "";
+  document.getElementById("jetonYenile").addEventListener("click", () => {
+    const j = getJeton();
+    j.amount = 1000;
+    saveJeton(j);
+    updateJetonUI();
+    toast("Jetonlar 1000'e yenilendi", "ok");
+  });
+}
+
+const SLOT_CONFIGS = {
+  seker: { name: "Şeker Diyarı", symbols: ["🍬","🍭","🍫","🧁","🍩","🍒"], payouts: { "3": 10, "4": 25, "5": 100 } },
+  tanri: { name: "Tanrılar Kapısı", symbols: ["⚡","🔱","🏛️","💎","🔥","👑"], payouts: { "3": 15, "4": 40, "5": 150 } },
+  oluler: { name: "Ölüler Kitabı", symbols: ["📜","💀","🔮","🏺","💎","🦂"], payouts: { "3": 12, "4": 30, "5": 120 } },
+  olum: { name: "Ölüm Ya Da Hayat", symbols: ["💀","🤠","🔫","🐎","🍺","💰"], payouts: { "3": 20, "4": 50, "5": 200 } }
+};
+
+function openSlot(key) {
+  const cfg = SLOT_CONFIGS[key];
+  if (!cfg) return;
+  setPanelHeader("🎰", cfg.name + " (Demo)");
+  const qBox = document.getElementById("queryBox");
+  qBox.innerHTML = `
+    <div style="text-align:center;margin-bottom:16px;">
+      <div style="font-size:22px;color:var(--accent);font-weight:700;">Bakiye: <span id="jetonDisplay">🪙 ${getJeton().amount}</span></div>
+      <div style="font-size:12px;color:#8a94a6;margin-top:6px;">Bahis: 10 jeton / spin</div>
+    </div>
+    <div style="display:flex;justify-content:center;gap:12px;margin:20px 0;">
+      ${[0,1,2,3,4].map(i => `<div id="reel_${i}" style="font-size:44px;background:rgba(10,15,25,.9);border:2px solid rgba(33,150,243,.3);border-radius:12px;padding:14px 8px;min-width:70px;text-align:center;">${cfg.symbols[Math.floor(Math.random()*cfg.symbols.length)]}</div>`).join("")}
+    </div>
+    <div style="text-align:center;">
+      <button class="btn-query" id="spinBtn" style="font-size:16px;padding:14px 40px;">🎰 ÇEVİR</button>
+    </div>
+    <div id="slotMsg" style="text-align:center;margin-top:16px;font-size:15px;min-height:24px;"></div>
+    <div style="margin-top:20px;text-align:center;">
+      <button class="head-btn" onclick="openKumarhane()">← Geri</button>
+    </div>`;
+  document.getElementById("resultArea").innerHTML = "";
+  document.getElementById("spinBtn").addEventListener("click", () => spinSlot(key));
+}
+
+function spinSlot(key) {
+  const cfg = SLOT_CONFIGS[key];
+  const j = getJeton();
+  if (j.amount < 10) { toast("Yetersiz jeton!", "err"); return; }
+  addJeton(-10);
+  const btn = document.getElementById("spinBtn");
+  btn.disabled = true;
+  let spins = 0;
+  const interval = setInterval(() => {
+    for (let i = 0; i < 5; i++) {
+      document.getElementById("reel_" + i).textContent = cfg.symbols[Math.floor(Math.random()*cfg.symbols.length)];
+    }
+    spins++;
+    if (spins > 8) {
+      clearInterval(interval);
+      const final = [0,1,2,3,4].map(() => cfg.symbols[Math.floor(Math.random()*cfg.symbols.length)]);
+      for (let i = 0; i < 5; i++) document.getElementById("reel_" + i).textContent = final[i];
+      const counts = {};
+      final.forEach(s => counts[s] = (counts[s]||0)+1);
+      let win = 0, winSym = null, winCount = 0;
+      for (const [s, c] of Object.entries(counts)) {
+        if (c >= 3) {
+          const mult = cfg.payouts[String(c)] || 0;
+          const amount = mult * 10;
+          if (amount > win) { win = amount; winSym = s; winCount = c; }
+        }
+      }
+      const msg = document.getElementById("slotMsg");
+      if (win > 0) {
+        addJeton(win);
+        msg.innerHTML = `<span style="color:#4caf50;">🎉 ${winCount}x ${winSym} — ${win} jeton kazandın!</span>`;
+      } else {
+        msg.innerHTML = `<span style="color:#ff5252;">Kaybettin. Tekrar dene!</span>`;
+      }
+      btn.disabled = false;
+    }
+  }, 100);
 }
 
 function openModal(title, bodyHtml, buttons) {
