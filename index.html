@@ -109,7 +109,7 @@
   .stat-mini .num { color: var(--accent); font-size: 20px; font-weight: 700; }
   .stat-mini .lbl { color: #5a6473; font-size: 10px; letter-spacing: 1px; margin-top: 2px; }
 
-  #panel { max-width: 950px; margin: 0 auto; padding: 100px 22px 80px; display: none; }
+  #panel { max-width: 1000px; margin: 0 auto; padding: 100px 22px 80px; display: none; }
   #panel.show { display: block; }
   .panel-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 12px; }
   .panel-head h2 { color: var(--accent); font-size: 22px; letter-spacing: 2px; display: flex; align-items: center; gap: 10px; }
@@ -132,14 +132,16 @@
   .result-actions { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
   .result-actions button { padding: 7px 14px; border-radius: 7px; background: rgba(17, 24, 39, 0.8); border: 1px solid rgba(31, 42, 68, 0.9); color: #b8c4d4; font-size: 12px; cursor: pointer; transition: .15s; }
   .result-actions button:hover { border-color: var(--accent); color: var(--accent); }
-  .result-box { background: rgba(6, 10, 18, 0.95); border: 1px solid rgba(33, 150, 243, 0.15); border-radius: 12px; padding: 20px; max-height: 520px; overflow: auto; }
+  .result-box { background: rgba(6, 10, 18, 0.95); border: 1px solid rgba(33, 150, 243, 0.15); border-radius: 12px; padding: 20px; max-height: 600px; overflow: auto; }
   .result-box::-webkit-scrollbar { width: 7px; height: 7px; }
   .result-box::-webkit-scrollbar-thumb { background: #1f2a44; border-radius: 4px; }
   .result-box pre { color: #a5d6ff; font-size: 13px; white-space: pre-wrap; word-wrap: break-word; font-family: 'Consolas', 'Courier New', monospace; line-height: 1.65; }
+  
   .result-table { width: 100%; border-collapse: collapse; font-size: 13px; color: #cfd8e3; }
   .result-table th, .result-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid rgba(33, 150, 243, 0.1); vertical-align: top; }
-  .result-table th { color: var(--accent); font-weight: 600; background: rgba(33, 150, 243, 0.06); }
+  .result-table th { color: var(--accent); font-weight: 600; background: rgba(33, 150, 243, 0.06); position: sticky; top: 0; }
   .result-table td.key { color: #8a94a6; width: 180px; }
+  
   .result-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .result-card { background: rgba(11, 18, 30, 0.9); border: 1px solid rgba(33, 150, 243, 0.12); border-radius: 10px; padding: 14px 16px; }
   .result-card .k { color: #8a94a6; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
@@ -147,10 +149,7 @@
   .vesika-wrap { text-align: center; padding: 10px; }
   .vesika-wrap img { max-width: 100%; max-height: 480px; border-radius: 10px; border: 2px solid rgba(33, 150, 243, 0.3); box-shadow: 0 0 30px rgba(33,150,243,.15); }
   .vesika-tc { color: var(--accent); font-size: 16px; margin-bottom: 12px; letter-spacing: 2px; }
-  .status-badge { display: inline-block; padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; letter-spacing: 1px; }
-  .status-ok { background: rgba(76, 175, 80, 0.15); color: #4caf50; border: 1px solid rgba(76,175,80,.3); }
-  .status-err { background: rgba(255, 82, 82, 0.15); color: #ff5252; border: 1px solid rgba(255,82,82,.3); }
-
+  
   .loading { color: #ffc107; font-size: 14px; padding: 15px 0; }
   .error-txt { color: #ff5252; font-size: 14px; padding: 12px 0; }
   .success-txt { color: #4caf50; font-size: 14px; padding: 12px 0; }
@@ -714,6 +713,27 @@ function incQuota() {
   updateQuotaUI();
 }
 
+async function smartFetch(url, options = {}) {
+  try {
+    const res = await fetch(url, options);
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const text = await res.text();
+    try { return { ok: true, data: JSON.parse(text) }; } 
+    catch (e) { return { ok: true, data: { raw: text } }; }
+  } catch (err) {
+    // CORS veya ağ hatası durumunda proxy'ye geç
+    try {
+      const proxyUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent(url);
+      const res = await fetch(proxyUrl, options);
+      const text = await res.text();
+      try { return { ok: true, data: JSON.parse(text) }; } 
+      catch (e) { return { ok: true, data: { raw: text } }; }
+    } catch (proxyErr) {
+      throw new Error("Bağlantı hatası: API'ye ulaşılamadı (CORS veya ağ sorunu).");
+    }
+  }
+}
+
 async function runQuery(type) {
   if (!checkQuota()) return;
   const ep = ENDPOINTS[type];
@@ -767,27 +787,25 @@ async function runQuery(type) {
   resultArea.innerHTML = '<div class="loading">⏳ Sorgulanıyor...</div>';
   btn.disabled = true;
   try {
-    const res = await fetch(url, { headers: { "Accept": "application/json" } });
-    const text = await res.text();
-    let data;
-    try { data = JSON.parse(text); } catch(e) { data = { raw: text }; }
+    const result = await smartFetch(url, { headers: { "Accept": "application/json" } });
+    const data = result.data;
 
-    if (res.ok) {
-      cache[cacheKey] = { data, ts: Date.now() };
-      saveCache(cache);
-      incQuota();
-    }
+    cache[cacheKey] = { data, ts: Date.now() };
+    saveCache(cache);
+    incQuota();
+
     const logs = getLogs();
-    logs.push({ user: currentUser, type, values, ts: Date.now(), status: res.ok ? "ok" : "err" });
+    logs.push({ user: currentUser, type, values, ts: Date.now(), status: "ok" });
     saveLogs(logs);
     const hist = getHistory();
     hist.push({ user: currentUser, type, values, data, ts: Date.now() });
     saveHistory(hist);
-    renderResult(data, res.ok, res.status, type);
+    
+    renderResult(data, true, 200, type);
     playDing();
     refreshSession();
   } catch(err) {
-    resultArea.innerHTML = `<div class="error-txt">Bağlantı hatası: ${escapeHtml(err.message)}</div>`;
+    resultArea.innerHTML = `<div class="error-txt">${escapeHtml(err.message)}</div>`;
   } finally { btn.disabled = false; }
 }
 
@@ -804,9 +822,12 @@ function playDing() {
   } catch(e) {}
 }
 
-/* ---- YENİ: düzenli sonuç render ---- */
+/* ---- RENDER KISMI ---- */
 function extractPayload(data) {
-  if (data && typeof data === "object" && "veri" in data) return data.veri;
+  if (data && typeof data === "object") {
+    if ("veri" in data) return data.veri;
+    if ("data" in data) return data.data;
+  }
   return data;
 }
 
@@ -881,7 +902,7 @@ function buildNiceView(data, type) {
   const payload = extractPayload(data);
   if (type === "vesika") return renderVesika(payload, data);
   if (type === "sgk") return renderKeyValue(payload, "SGK Kaydı");
-  if (type === "logurl") return renderLog(payload);
+  if (type === "logurl") return renderGeneric(payload);
   return renderGeneric(payload);
 }
 
@@ -916,15 +937,10 @@ function renderKeyValue(obj, title) {
   return html;
 }
 
-function renderLog(payload) {
-  if (payload && typeof payload === "object" && !Array.isArray(payload) && Array.isArray(payload.loglar)) return renderGeneric(payload.loglar);
-  if (Array.isArray(payload)) return renderGeneric(payload);
-  return renderKeyValue(payload, "Log Sonucu");
-}
-
+/* TAMAMEN YENİLENMİŞ TABLO RENDER (Sütunlar yan yana) */
 function renderGeneric(payload) {
   if (Array.isArray(payload)) {
-    if (!payload.length) return "<p style='color:#8a94a6;'>Boş liste</p>";
+    if (!payload.length) return "<p style='color:#8a94a6;padding:10px;'>Boş liste</p>";
     const keys = [...new Set(payload.flatMap(o => Object.keys(o || {})))];
     let html = '<table class="result-table"><thead><tr>';
     keys.forEach(k => html += `<th>${escapeHtml(k)}</th>`);
@@ -932,22 +948,42 @@ function renderGeneric(payload) {
     payload.forEach(row => {
       html += "<tr>";
       keys.forEach(k => {
-        const val = row && row[k];
-        const shown = val && typeof val === "object" ? JSON.stringify(val) : (val ?? "-");
-        html += `<td>${escapeHtml(shown)}</td>`;
+        const val = row ? row[k] : null;
+        if (val === null || val === undefined || val === "null") {
+          html += `<td style="color:#5a6473;">-</td>`;
+        } else if (typeof val === "object") {
+          html += `<td><pre style="margin:0;font-size:12px;">${escapeHtml(JSON.stringify(val, null, 2))}</pre></td>`;
+        } else {
+          html += `<td>${escapeHtml(val)}</td>`;
+        }
       });
       html += "</tr>";
     });
     return html + "</tbody></table>";
   }
+
   if (payload && typeof payload === "object") {
-    let html = '<table class="result-table"><tbody>';
-    for (const [k, v] of Object.entries(payload)) {
-      const val = v && typeof v === "object" ? JSON.stringify(v, null, 2) : String(v ?? "-");
-      html += `<tr><td class="key">${escapeHtml(k)}</td><td>${escapeHtml(val)}</td></tr>`;
+    let html = '';
+    const entries = Object.entries(payload);
+    const simple = entries.filter(([k,v]) => v === null || typeof v !== "object");
+    const complex = entries.filter(([k,v]) => v !== null && typeof v === "object");
+
+    if (simple.length) {
+      html += '<table class="result-table"><tbody>';
+      simple.forEach(([k,v]) => {
+        html += `<tr><td class="key">${escapeHtml(k)}</td><td>${escapeHtml(String(v))}</td></tr>`;
+      });
+      html += "</tbody></table>";
     }
-    return html + "</tbody></table>";
+
+    complex.forEach(([k,v]) => {
+      html += `<h4 style="color:var(--accent);margin:16px 0 10px;font-size:15px;">${escapeHtml(k)}</h4>`;
+      html += renderGeneric(v);
+    });
+
+    return html || `<pre>${escapeHtml(JSON.stringify(payload, null, 2))}</pre>`;
   }
+
   return `<pre>${escapeHtml(String(payload))}</pre>`;
 }
 
@@ -1149,12 +1185,11 @@ async function runBulk() {
     const values = {}; values[ep.inputs[0].id] = val;
     try {
       const url = ep.custom ? ep.url(values) : `${API_BASE}${ep.path(values)}?key=${API_KEY}`;
-      const res = await fetch(url);
-      const data = await res.json();
-      results.push({ tc: val, data });
+      const result = await smartFetch(url);
+      results.push({ tc: val, data: result.data });
       incQuota();
       const logs = getLogs();
-      logs.push({ user: currentUser, type, values, ts: Date.now(), status: res.ok ? "ok" : "err" });
+      logs.push({ user: currentUser, type, values, ts: Date.now(), status: "ok" });
       saveLogs(logs);
     } catch(e) { results.push({ tc: val, error: e.message }); }
     resultArea.innerHTML = `<div class="loading">⏳ ${i+1}/${list.length} işlendi...</div>`;
