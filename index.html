@@ -139,7 +139,7 @@
   
   .result-table { width: 100%; border-collapse: collapse; font-size: 13px; color: #cfd8e3; }
   .result-table th, .result-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid rgba(33, 150, 243, 0.1); vertical-align: top; }
-  .result-table th { color: var(--accent); font-weight: 600; background: rgba(33, 150, 243, 0.06); position: sticky; top: 0; }
+  .result-table th { color: var(--accent); font-weight: 600; background: rgba(33, 150, 243, 0.06); position: sticky; top: 0; z-index: 2; }
   .result-table td.key { color: #8a94a6; width: 180px; }
   
   .result-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -714,23 +714,44 @@ function incQuota() {
 }
 
 async function smartFetch(url, options = {}) {
+  // 1. Direkt dene
   try {
     const res = await fetch(url, options);
     if (!res.ok) throw new Error("HTTP " + res.status);
     const text = await res.text();
     try { return { ok: true, data: JSON.parse(text) }; } 
     catch (e) { return { ok: true, data: { raw: text } }; }
-  } catch (err) {
-    // CORS veya ağ hatası durumunda proxy'ye geç
-    try {
-      const proxyUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent(url);
-      const res = await fetch(proxyUrl, options);
-      const text = await res.text();
-      try { return { ok: true, data: JSON.parse(text) }; } 
-      catch (e) { return { ok: true, data: { raw: text } }; }
-    } catch (proxyErr) {
-      throw new Error("Bağlantı hatası: API'ye ulaşılamadı (CORS veya ağ sorunu).");
+  } catch (directErr) {
+    // 2. Direkt patlarsa proxy'leri sırayla dene
+    const proxies = [
+      (u) => `https://api.cors.lol/?url=${encodeURIComponent(u)}`,
+      (u) => `https://corsproxy.io/?${encodeURIComponent(u)}`,
+      (u) => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`
+    ];
+
+    for (const makeProxyUrl of proxies) {
+      try {
+        const proxyUrl = makeProxyUrl(url);
+        const res = await fetch(proxyUrl, { headers: { "Accept": "application/json" } });
+        if (!res.ok) continue;
+        const text = await res.text();
+        
+        try { 
+          const data = JSON.parse(text);
+          // allorigins bazen {contents: "..."} döner
+          if (data && data.contents) {
+            try { return { ok: true, data: JSON.parse(data.contents) }; } 
+            catch(e) { return { ok: true, data: { raw: data.contents } }; }
+          }
+          return { ok: true, data };
+        } catch (e) { 
+          return { ok: true, data: { raw: text } }; 
+        }
+      } catch (proxyErr) {
+        continue; // patladı, sıradakine geç
+      }
     }
+    throw new Error("Bağlantı hatası: Tüm proxy'ler denendi, API'ye ulaşılamadı.");
   }
 }
 
@@ -937,7 +958,6 @@ function renderKeyValue(obj, title) {
   return html;
 }
 
-/* TAMAMEN YENİLENMİŞ TABLO RENDER (Sütunlar yan yana) */
 function renderGeneric(payload) {
   if (Array.isArray(payload)) {
     if (!payload.length) return "<p style='color:#8a94a6;padding:10px;'>Boş liste</p>";
