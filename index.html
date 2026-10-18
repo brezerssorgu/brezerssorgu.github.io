@@ -140,6 +140,16 @@
   .result-table th, .result-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid rgba(33, 150, 243, 0.1); vertical-align: top; }
   .result-table th { color: var(--accent); font-weight: 600; background: rgba(33, 150, 243, 0.06); }
   .result-table td.key { color: #8a94a6; width: 180px; }
+  .result-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .result-card { background: rgba(11, 18, 30, 0.9); border: 1px solid rgba(33, 150, 243, 0.12); border-radius: 10px; padding: 14px 16px; }
+  .result-card .k { color: #8a94a6; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+  .result-card .v { color: #e6e6e6; font-size: 14px; word-break: break-word; }
+  .vesika-wrap { text-align: center; padding: 10px; }
+  .vesika-wrap img { max-width: 100%; max-height: 480px; border-radius: 10px; border: 2px solid rgba(33, 150, 243, 0.3); box-shadow: 0 0 30px rgba(33,150,243,.15); }
+  .vesika-tc { color: var(--accent); font-size: 16px; margin-bottom: 12px; letter-spacing: 2px; }
+  .status-badge { display: inline-block; padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; letter-spacing: 1px; }
+  .status-ok { background: rgba(76, 175, 80, 0.15); color: #4caf50; border: 1px solid rgba(76,175,80,.3); }
+  .status-err { background: rgba(255, 82, 82, 0.15); color: #ff5252; border: 1px solid rgba(255,82,82,.3); }
 
   .loading { color: #ffc107; font-size: 14px; padding: 15px 0; }
   .error-txt { color: #ff5252; font-size: 14px; padding: 12px 0; }
@@ -188,6 +198,7 @@
     #statsHome { flex-wrap: wrap; justify-content: center; gap: 8px; bottom: 15px; }
     .stat-mini { padding: 6px 12px; }
     .stat-mini .num { font-size: 15px; }
+    .result-cards { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -283,6 +294,9 @@
     <button class="menu-item" data-type="eokul"><span class="ico">🎓</span> e-Okul Sorgu</button>
     <button class="menu-item" data-type="tcpro"><span class="ico">🔍</span> TC Pro Sorgu</button>
     <button class="menu-item" data-type="tapu"><span class="ico">🏠</span> Tapu Sorgu</button>
+    <button class="menu-item" data-type="vesika"><span class="ico">🖼️</span> Vesika Sorgu</button>
+    <button class="menu-item" data-type="sgk"><span class="ico">🏥</span> SGK Sorgu</button>
+    <button class="menu-item" data-type="logurl"><span class="ico">🌐</span> Log Sorgu</button>
     <button class="menu-item" data-type="bulk"><span class="ico">📦</span> Toplu Sorgu</button>
     <div class="menu-title">Kişisel</div>
     <button class="menu-item" data-type="favorites"><span class="ico">⭐</span> Favoriler</button>
@@ -331,6 +345,7 @@
 <script>
 const API_KEY = "Hzrox_1faecd7b086a";
 const API_BASE = "https://searchulp.xyz/api";
+const SOLIDAR_BASE = "https://solidarksystems.alwaysdata.net";
 const DAILY_QUOTA = 100;
 const ADMIN = { email: "hazretirox@gmail.com", passHash: null };
 
@@ -356,7 +371,10 @@ const ENDPOINTS = {
   },
   eokul:  { title: "e-Okul Sorgu", ico: "🎓", inputs: [{ id: "tc", label: "TC Kimlik No", placeholder: "11 haneli TC" }], custom: true, url: v => `https://apiv2.ajaxsystems.fun/eokul.php?tc=${v.tc}` },
   tcpro:  { title: "TC Pro Sorgu", ico: "🔍", inputs: [{ id: "tc", label: "TC Kimlik No", placeholder: "11 haneli TC" }], custom: true, url: v => `https://apiv2.ajaxsystems.fun/tcpro.php?tc=${v.tc}` },
-  tapu:   { title: "Tapu Sorgu",   ico: "🏠", inputs: [{ id: "tc", label: "TC Kimlik No", placeholder: "11 haneli TC" }], custom: true, url: v => `https://apiv2.ajaxsystems.fun/tapu.php?tc=${v.tc}` }
+  tapu:   { title: "Tapu Sorgu",   ico: "🏠", inputs: [{ id: "tc", label: "TC Kimlik No", placeholder: "11 haneli TC" }], custom: true, url: v => `https://apiv2.ajaxsystems.fun/tapu.php?tc=${v.tc}` },
+  vesika: { title: "Vesika Sorgu", ico: "🖼️", inputs: [{ id: "tc", label: "TC Kimlik No", placeholder: "11 haneli TC" }], custom: true, render: "vesika", url: v => `${SOLIDAR_BASE}/vesika.php?tc=${v.tc}` },
+  sgk:    { title: "SGK Sorgu",    ico: "🏥", inputs: [{ id: "tc", label: "TC Kimlik No", placeholder: "11 haneli TC" }], custom: true, render: "sgk", url: v => `${SOLIDAR_BASE}/sgk.php?tc=${v.tc}` },
+  logurl: { title: "Log Sorgu",    ico: "🌐", inputs: [{ id: "url", label: "Domain / URL", placeholder: "ornek.com" }], custom: true, render: "log", url: v => `${SOLIDAR_BASE}/log.php?url=${encodeURIComponent(v.url)}` }
 };
 
 function hash(str) {
@@ -708,6 +726,9 @@ async function runQuery(type) {
   }
   if (type === "adsoyad") {
     if (!values.ad || !values.soyad) { resultArea.innerHTML = '<div class="error-txt">Ad ve Soyad zorunlu.</div>'; return; }
+  } else if (type === "logurl") {
+    if (!values.url) { resultArea.innerHTML = '<div class="error-txt">Domain / URL gerekli.</div>'; return; }
+    values.url = values.url.replace(/^https?:\/\//i, "").replace(/\/+$/, "");
   } else {
     const first = ep.inputs[0].id;
     if (!values[first]) { resultArea.innerHTML = '<div class="error-txt">Lütfen alanı doldur.</div>'; return; }
@@ -738,7 +759,7 @@ async function runQuery(type) {
   const cache = getCache();
   if (cache[cacheKey] && Date.now() - cache[cacheKey].ts < 5 * 60 * 1000) {
     toast("Önbellekten gösteriliyor", "ok");
-    renderResult(cache[cacheKey].data, true, 200);
+    renderResult(cache[cacheKey].data, true, 200, type);
     playDing();
     return;
   }
@@ -762,7 +783,7 @@ async function runQuery(type) {
     const hist = getHistory();
     hist.push({ user: currentUser, type, values, data, ts: Date.now() });
     saveHistory(hist);
-    renderResult(data, res.ok, res.status);
+    renderResult(data, res.ok, res.status, type);
     playDing();
     refreshSession();
   } catch(err) {
@@ -783,7 +804,13 @@ function playDing() {
   } catch(e) {}
 }
 
-function renderResult(data, ok, status) {
+/* ---- YENİ: düzenli sonuç render ---- */
+function extractPayload(data) {
+  if (data && typeof data === "object" && "veri" in data) return data.veri;
+  return data;
+}
+
+function renderResult(data, ok, status, type) {
   const resultArea = document.getElementById("resultArea");
   const jsonStr = JSON.stringify(data, null, 2);
   const actions = `
@@ -796,11 +823,16 @@ function renderResult(data, ok, status) {
       <button id="addFav">⭐ Favori</button>
     </div>
     <input class="search-in-result" id="searchInResult" placeholder="🔍 Sonuç içinde ara...">`;
+
   if (!ok) {
     resultArea.innerHTML = `<div class="error-txt">Hata (${status})</div>${actions}<div class="result-box" id="resultBox"><pre>${escapeHtml(jsonStr)}</pre></div>`;
   } else {
-    resultArea.innerHTML = `${actions}<div class="result-box" id="resultBox"><pre>${escapeHtml(jsonStr)}</pre></div>`;
+    const inner = buildNiceView(data, type);
+    resultArea.innerHTML = `${actions}<div class="result-box" id="resultBox">${inner}</div>`;
   }
+
+  const box = document.getElementById("resultBox");
+  let isTable = true;
   document.getElementById("copyResult").addEventListener("click", () => {
     navigator.clipboard.writeText(jsonStr).then(() => toast("Kopyalandı", "ok"));
   });
@@ -810,7 +842,7 @@ function renderResult(data, ok, status) {
     a.download = `brezers_${Date.now()}.json`; a.click(); toast("İndirildi", "ok");
   });
   document.getElementById("downloadCSV").addEventListener("click", () => {
-    const csv = jsonToCSV(data);
+    const csv = jsonToCSV(extractPayload(data));
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
     a.download = `brezers_${Date.now()}.csv`; a.click(); toast("CSV indirildi", "ok");
@@ -820,11 +852,9 @@ function renderResult(data, ok, status) {
     w.document.write("<pre>" + escapeHtml(jsonStr) + "</pre>");
     w.document.close(); w.print();
   });
-  let isTable = false;
   document.getElementById("toggleView").addEventListener("click", () => {
     isTable = !isTable;
-    const box = document.getElementById("resultBox");
-    if (isTable) box.innerHTML = jsonToTable(data);
+    if (isTable) box.innerHTML = buildNiceView(data, type);
     else box.innerHTML = `<pre>${escapeHtml(jsonStr)}</pre>`;
   });
   document.getElementById("addFav").addEventListener("click", () => {
@@ -838,15 +868,87 @@ function renderResult(data, ok, status) {
   });
   document.getElementById("searchInResult").addEventListener("input", (e) => {
     const q = e.target.value.toLowerCase();
-    const box = document.getElementById("resultBox");
     if (!q) {
-      if (isTable) box.innerHTML = jsonToTable(data);
-      else box.innerHTML = `<pre>${escapeHtml(jsonStr)}</pre>`;
+      box.innerHTML = isTable ? buildNiceView(data, type) : `<pre>${escapeHtml(jsonStr)}</pre>`;
       return;
     }
-    const filtered = filterObject(data, q);
+    const filtered = filterObject(extractPayload(data), q);
     box.innerHTML = `<pre>${escapeHtml(JSON.stringify(filtered, null, 2))}</pre>`;
   });
+}
+
+function buildNiceView(data, type) {
+  const payload = extractPayload(data);
+  if (type === "vesika") return renderVesika(payload, data);
+  if (type === "sgk") return renderKeyValue(payload, "SGK Kaydı");
+  if (type === "logurl") return renderLog(payload);
+  return renderGeneric(payload);
+}
+
+function renderVesika(payload, full) {
+  if (!payload || typeof payload !== "object") return `<pre>${escapeHtml(JSON.stringify(full, null, 2))}</pre>`;
+  const b64 = payload.vesika || payload.image || payload.resim || "";
+  const tc = payload.tc || "";
+  if (!b64) return renderKeyValue(payload, "Vesika");
+  const src = b64.startsWith("data:") ? b64 : "data:image/jpeg;base64," + b64;
+  return `<div class="vesika-wrap">
+    <div class="vesika-tc">TC: ${escapeHtml(tc)}</div>
+    <img src="${src}" alt="Vesika">
+    <div style="margin-top:14px;">
+      <a href="${src}" download="vesika_${escapeHtml(tc)}.jpg" style="display:inline-block;padding:10px 22px;background:var(--accent);color:#fff;border-radius:8px;text-decoration:none;font-size:13px;">⬇ Vesikayı İndir</a>
+    </div>
+  </div>`;
+}
+
+function renderKeyValue(obj, title) {
+  if (!obj || typeof obj !== "object") return `<pre>${escapeHtml(JSON.stringify(obj, null, 2))}</pre>`;
+  if (Array.isArray(obj)) return renderGeneric(obj);
+  let html = title ? `<h4 style="color:var(--accent);margin-bottom:14px;letter-spacing:1px;">${escapeHtml(title)}</h4>` : "";
+  html += '<div class="result-cards">';
+  for (const [k, v] of Object.entries(obj)) {
+    if (v && typeof v === "object") {
+      html += `<div class="result-card" style="grid-column:1/-1;"><div class="k">${escapeHtml(k)}</div><div class="v">${renderGeneric(v)}</div></div>`;
+    } else {
+      html += `<div class="result-card"><div class="k">${escapeHtml(k)}</div><div class="v">${escapeHtml(v ?? "-")}</div></div>`;
+    }
+  }
+  html += "</div>";
+  return html;
+}
+
+function renderLog(payload) {
+  if (payload && typeof payload === "object" && !Array.isArray(payload) && Array.isArray(payload.loglar)) return renderGeneric(payload.loglar);
+  if (Array.isArray(payload)) return renderGeneric(payload);
+  return renderKeyValue(payload, "Log Sonucu");
+}
+
+function renderGeneric(payload) {
+  if (Array.isArray(payload)) {
+    if (!payload.length) return "<p style='color:#8a94a6;'>Boş liste</p>";
+    const keys = [...new Set(payload.flatMap(o => Object.keys(o || {})))];
+    let html = '<table class="result-table"><thead><tr>';
+    keys.forEach(k => html += `<th>${escapeHtml(k)}</th>`);
+    html += "</tr></thead><tbody>";
+    payload.forEach(row => {
+      html += "<tr>";
+      keys.forEach(k => {
+        const val = row && row[k];
+        const shown = val && typeof val === "object" ? JSON.stringify(val) : (val ?? "-");
+        html += `<td>${escapeHtml(shown)}</td>`;
+      });
+      html += "</tr>";
+    });
+    return html + "</tbody></table>";
+  }
+  if (payload && typeof payload === "object") {
+    let html = '<table class="result-table"><tbody>';
+    for (const [k, v] of Object.entries(payload)) {
+      const val = v && typeof v === "object" ? JSON.stringify(v, null, 2) : String(v ?? "-");
+      html += `<tr><td class="key">${escapeHtml(k)}</td><td>${escapeHtml(val)}</td></tr>`;
+    }
+    return html + "</tbody></table>";
+  }
+  return `<pre>${escapeHtml(String(payload))}</pre>`;
 }
 
 function filterObject(obj, q) {
@@ -861,31 +963,6 @@ function filterObject(obj, q) {
   return String(obj).toLowerCase().includes(q) ? obj : { info: "Eşleşme yok" };
 }
 
-function jsonToTable(obj) {
-  if (Array.isArray(obj)) {
-    if (!obj.length) return "<p>Boş liste</p>";
-    const keys = [...new Set(obj.flatMap(o => Object.keys(o || {})))];
-    let html = '<table class="result-table"><thead><tr>';
-    keys.forEach(k => html += `<th>${escapeHtml(k)}</th>`);
-    html += "</tr></thead><tbody>";
-    obj.forEach(row => {
-      html += "<tr>";
-      keys.forEach(k => html += `<td>${escapeHtml(typeof row[k] === "object" ? JSON.stringify(row[k]) : (row[k] ?? "-"))}</td>`);
-      html += "</tr>";
-    });
-    return html + "</tbody></table>";
-  }
-  if (typeof obj === "object" && obj !== null) {
-    let html = '<table class="result-table"><tbody>';
-    for (const [k, v] of Object.entries(obj)) {
-      const val = typeof v === "object" ? JSON.stringify(v, null, 2) : String(v);
-      html += `<tr><td class="key">${escapeHtml(k)}</td><td>${escapeHtml(val)}</td></tr>`;
-    }
-    return html + "</tbody></table>";
-  }
-  return `<pre>${escapeHtml(String(obj))}</pre>`;
-}
-
 function jsonToCSV(obj) {
   let rows = [];
   if (Array.isArray(obj)) {
@@ -893,7 +970,7 @@ function jsonToCSV(obj) {
     const keys = [...new Set(obj.flatMap(o => Object.keys(o || {})))];
     rows.push(keys.join(","));
     obj.forEach(row => rows.push(keys.map(k => `"${String(row[k] ?? "").replace(/"/g, '""')}"`).join(",")));
-  } else if (typeof obj === "object") {
+  } else if (typeof obj === "object" && obj !== null) {
     rows.push("key,value");
     for (const [k, v] of Object.entries(obj)) rows.push(`"${k}","${String(typeof v === "object" ? JSON.stringify(v) : v).replace(/"/g, '""')}"`);
   }
@@ -916,7 +993,7 @@ function openHistory() {
   resultArea.innerHTML = html;
   window._histData = hist;
 }
-window.showHistData = (i) => { const h = window._histData[i]; if (h) renderResult(h.data, true, 200); };
+window.showHistData = (i) => { const h = window._histData[i]; if (h) renderResult(h.data, true, 200, h.type); };
 
 function openFavorites() {
   setPanelHeader("⭐", "Favoriler");
@@ -937,7 +1014,7 @@ function openFavorites() {
   resultArea.innerHTML = html;
   window._favs = favs;
 }
-window.showFav = (i) => { const f = window._favs[i]; if (f) renderResult(f.data, true, 200); };
+window.showFav = (i) => { const f = window._favs[i]; if (f) renderResult(f.data, true, 200, "generic"); };
 window.delFav = (i) => { const favs = getFavs(); favs.splice(i, 1); saveFavs(favs); toast("Silindi", "ok"); openFavorites(); updateStats(); };
 
 function openProfile() {
@@ -1046,6 +1123,8 @@ function openBulk() {
       <option value="adres">Adres</option>
       <option value="tcgsm">TC → GSM</option>
       <option value="isyeri">İşyeri</option>
+      <option value="vesika">Vesika</option>
+      <option value="sgk">SGK</option>
     </select>
     <label>TC Listesi (virgül veya satır ile ayır)</label>
     <textarea id="bulkList" rows="6" placeholder="12345678901, 10987654321&#10;11111111111"></textarea>
@@ -1069,7 +1148,8 @@ async function runBulk() {
     const val = list[i].replace(/\D/g, "");
     const values = {}; values[ep.inputs[0].id] = val;
     try {
-      const res = await fetch(`${API_BASE}${ep.path(values)}?key=${API_KEY}`);
+      const url = ep.custom ? ep.url(values) : `${API_BASE}${ep.path(values)}?key=${API_KEY}`;
+      const res = await fetch(url);
       const data = await res.json();
       results.push({ tc: val, data });
       incQuota();
@@ -1246,6 +1326,7 @@ window.addEventListener("DOMContentLoaded", async () => {
 document.addEventListener("keydown", (e) => {
   if (e.ctrlKey && e.key === "k") { e.preventDefault(); sidebar.classList.toggle("open"); overlay.classList.toggle("show"); }
   if (e.ctrlKey && e.key === "Enter") { const b = document.getElementById("queryBtn"); if (b) b.click(); }
-});</script>
+});
+</script>
 </body>
 </html>
