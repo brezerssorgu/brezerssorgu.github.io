@@ -249,36 +249,34 @@
   .reaction-box:hover { background: rgba(33, 150, 243, 0.1); }
   .reaction-box h2 { font-size: 40px; color: var(--accent); margin-bottom: 10px; }
 
-  /* --- GÖSTERİŞLİ EFEKTLER --- */
-  /* Matrix Arka Plan */
-  #matrixCanvas { position: fixed; inset: 0; z-index: -1; opacity: 0.15; pointer-events: none; }
-  
-  /* Canlı Terminal */
-  #liveTerminal {
-    position: fixed; bottom: 20px; right: 20px; width: 320px; height: 200px;
-    background: rgba(0, 0, 0, 0.85); border: 1px solid var(--accent);
-    border-radius: 8px; padding: 10px; font-family: 'Consolas', monospace;
-    font-size: 11px; color: #4caf50; overflow-y: auto; z-index: 2000;
-    box-shadow: 0 0 15px rgba(76, 175, 80, 0.2); pointer-events: none;
+  /* CC CHECKER GÖRSELLERİ */
+  .cc-card {
+    background: linear-gradient(135deg, #111 0%, #333 100%);
+    border-radius: 15px;
+    padding: 20px;
+    color: #fff;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    position: relative;
+    margin-bottom: 20px;
+    height: 180px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
   }
-  #liveTerminal::-webkit-scrollbar { width: 4px; }
-  #liveTerminal::-webkit-scrollbar-thumb { background: var(--accent); }
-  .term-line { margin-bottom: 4px; opacity: 0; animation: fadeIn 0.3s forwards; }
-  @keyframes fadeIn { to { opacity: 1; } }
-  .term-line.err { color: #ff5252; }
-  .term-line.sys { color: #ffc107; }
-
-  /* Siber Yükleniyor Ekranı */
-  #preloader {
-    position: fixed; inset: 0; background: #05080f; z-index: 99999;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    font-family: 'Consolas', monospace; color: #4caf50;
-  }
-  #preloader h1 { font-size: 40px; margin-bottom: 20px; text-shadow: 0 0 10px #4caf50; }
-  #preloader .bar { width: 300px; height: 4px; background: #1f2a44; border-radius: 2px; overflow: hidden; margin-bottom: 10px; }
-  #preloader .bar div { width: 0%; height: 100%; background: #4caf50; transition: width 0.1s; }
-  #preloader p { font-size: 14px; }
-  #preloader.hide { opacity: 0; pointer-events: none; transition: opacity 0.5s; }
+  .cc-card .cc-chip { width: 40px; height: 30px; background: #d4af37; border-radius: 5px; margin-top: 20px; }
+  .cc-card .cc-logo { position: absolute; top: 20px; right: 20px; font-size: 20px; font-weight: 900; font-style: italic; }
+  .cc-card .cc-num { font-size: 20px; letter-spacing: 2px; font-family: 'Courier New', monospace; margin-top: auto; }
+  .cc-card .cc-bottom { display: flex; justify-content: space-between; font-size: 12px; color: #aaa; margin-top: 10px; text-transform: uppercase; }
+  .cc-textarea { width: 100%; height: 120px; background: #1a1a24; color: #4caf50; border: 1px solid #333; border-radius: 8px; padding: 10px; font-family: monospace; resize: none; margin-bottom: 15px; }
+  .cc-btn-group { display: flex; flex-direction: column; gap: 10px; }
+  .cc-btn { width: 100%; padding: 15px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; color: #fff; }
+  .cc-btn-start { background: #00b894; }
+  .cc-btn-stop { background: #d63031; }
+  .cc-btn-clear { background: #0984e3; }
+  .cc-btn:hover { opacity: 0.9; }
+  .cc-live-box { background: #111; border: 1px solid #333; border-radius: 8px; padding: 15px; margin-top: 15px; max-height: 200px; overflow-y: auto; font-family: monospace; font-size: 13px; }
+  .cc-live-item { padding: 8px; border-bottom: 1px solid #222; color: #4caf50; }
+  .cc-live-item.err { color: #ff5252; }
 
   @media (max-width: 760px) {
     .auth-card { grid-template-columns: 1fr; min-height: auto; }
@@ -414,6 +412,9 @@
     <button class="menu-item" data-type="iplogger"><span class="ico">🔗</span> IP Logger (Link)</button>
     <button class="menu-item" data-type="bulk"><span class="ico">📦</span> Toplu Sorgu</button>
     
+    <div class="menu-title">Canlı İzleme</div>
+    <button class="menu-item" data-type="mobese"><span class="ico">📹</span> Mobese / Kamera</button>
+    
     <div class="menu-title">Eğlence</div>
     <button class="menu-item" data-type="kumarhane"><span class="ico">🎰</span> Kumarhane (Demo)</button>
     <button class="menu-item" data-type="meme"><span class="ico">🍈</span> Meme Sorgu</button>
@@ -422,6 +423,9 @@
     <button class="menu-item" data-type="games"><span class="ico">🎮</span> Mini Oyunlar</button>
     <button class="menu-item" data-type="reaction"><span class="ico">⚡</span> Reaksiyon Testi</button>
     <button class="menu-item" data-type="ihbar"><span class="ico">🚨</span> İhbar Sistemi</button>
+
+    <div class="menu-title">Araçlar</div>
+    <button class="menu-item" data-type="ccchecker"><span class="ico">💳</span> Brezers Checker</button>
 
     <div class="menu-title">Kişisel</div>
     <button class="menu-item" data-type="favorites"><span class="ico">⭐</span> Favoriler</button>
@@ -583,7 +587,6 @@ function toast(msg, type = "info") {
   setTimeout(() => { el.style.opacity = "0"; el.style.transition = ".3s"; setTimeout(() => el.remove(), 300); }, 2500);
 }
 
-// --- GÖSTERİŞLİ SİSTEM (Ses, Terminal, Matrix, Preloader) ---
 function addTermLog(msg, type = "info") {
   const term = document.getElementById("liveTerminal");
   if (!term) return;
@@ -793,8 +796,6 @@ function showMainSite() {
   if (getMaint() && !currentIsAdmin) {
     document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;color:#ffc107;font-size:22px;text-align:center;padding:20px;flex-direction:column;gap:15px;"><div style="font-size:60px;">🔧</div><div>Site bakımda. Lütfen sonra tekrar dene.</div></div>';
   }
-  
-  // Siteye girince müziği başlat (Tarayıcı politikaları gereği tıklama sonrası çalışır)
   startMusicOnLogin();
 }
 
@@ -881,6 +882,8 @@ document.querySelectorAll(".menu-item[data-type]").forEach(btn => {
     if (type === "games") return openGames();
     if (type === "reaction") return openReaction();
     if (type === "ihbar") return openIhbar();
+    if (type === "mobese") return openMobese();
+    if (type === "ccchecker") return openCCChecker();
     if (ENDPOINTS[type]) return openPanel(type);
   });
 });
@@ -1991,7 +1994,191 @@ function openIhbar() {
   });
 }
 
-// ---- MÜZİK ÇALAR (YENİ: SENİN İSTEDİĞİN ŞARKILAR) ----
+// ---- MOBESE (KAMERA) ----
+function openMobese() {
+  setPanelHeader("📹", "Mobese / Canlı Kamera");
+  const qBox = document.getElementById("queryBox");
+  qBox.innerHTML = `
+    <label>Bölge / Şehir Seç</label>
+    <select id="mobeseSelect" style="width:100%; padding:13px; background:rgba(10,15,25,0.9); border:1px solid rgba(31,42,68,0.9); border-radius:9px; color:#e6e6e6; font-size:14.5px; outline:none; margin-bottom:14px;">
+      <option value="">-- Seçiniz --</option>
+      <optgroup label="Türkiye">
+        <option value="https://opencctv.org/cameras/turkiye/istanbul">İstanbul (Trafik)</option>
+        <option value="https://izle.kayseri.bel.tr">Kayseri (Belediye)</option>
+      </optgroup>
+      <optgroup label="Dünya">
+        <option value="https://opencctv.org/cameras/traffic">Dünya Trafik Kameraları</option>
+        <option value="https://opencctv.org/cameras/united-kingdom/london">Londra</option>
+        <option value="https://opencctv.org/cameras/united-states/houston">Houston</option>
+        <option value="https://opencctv.org/cameras/spain/madrid">Madrid</option>
+      </optgroup>
+    </select>
+    <div style="display:flex; gap:10px;">
+      <button class="btn-query" id="mobeseOpenIframe" style="flex:1;">PANEL İÇİNDE AÇ</button>
+      <button class="btn-query" id="mobeseOpenNewTab" style="flex:1; background:linear-gradient(135deg, #2e7d32, #4caf50);">YENİ SEKMEDE AÇ</button>
+    </div>
+  `;
+  document.getElementById("resultArea").innerHTML = "";
+  
+  document.getElementById("mobeseOpenIframe").addEventListener("click", () => {
+    const url = document.getElementById("mobeseSelect").value;
+    if (!url) { toast("Lütfen bir bölge seçin.", "err"); return; }
+    document.getElementById("resultArea").innerHTML = `
+      <div class="result-box" style="padding:0; height:600px; overflow:hidden; border-radius:12px;">
+        <iframe src="${url}" style="width:100%; height:100%; border:none; background:#000;" allowfullscreen></iframe>
+      </div>
+      <p style="color:#ff5252; font-size:12px; margin-top:10px;">⚠️ Eğer ekran boş geliyorsa, site güvenlik politikası nedeniyle iframe'i engelliyor olabilir. "Yeni Sekmede Aç" butonunu kullanın.</p>
+    `;
+  });
+
+  document.getElementById("mobeseOpenNewTab").addEventListener("click", () => {
+    const url = document.getElementById("mobeseSelect").value;
+    if (!url) { toast("Lütfen bir bölge seçin.", "err"); return; }
+    window.open(url, "_blank");
+  });
+}
+
+// ---- CC CHECKER (SİMÜLASYON) ----
+function openCCChecker() {
+  setPanelHeader("💳", "Brezer Checker");
+  const qBox = document.getElementById("queryBox");
+  qBox.innerHTML = `
+    <div style="background:#111; padding:20px; border-radius:12px; border:1px solid #333; max-width:500px; margin:0 auto;">
+      <div style="text-align:center; margin-bottom:20px;">
+        <div style="font-size:16px; color:#aaa;">Toplam Bakiye</div>
+        <div style="font-size:24px; color:#4caf50; font-weight:bold;">5.00 TL</div>
+      </div>
+      
+      <p style="color:#aaa; font-size:13px; text-align:center; margin-bottom:15px;">
+        Ücretsiz proxy sunucularını <span style="color:#00a8ff; text-decoration:underline; cursor:pointer;">burada</span> paylaştık. Bu proxy'ler düzenli olarak kontrol edilir ve her 10 dakikada bir güncellenir.
+      </p>
+
+      <div class="cc-card">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div style="width:30px; height:30px; background:#fff; border-radius:5px; display:flex; align-items:center; justify-content:center; color:#000; font-weight:bold;">B</div>
+            <div>
+              <div style="font-size:18px; font-weight:bold; line-height:1;">Brezer Checker</div>
+              <div style="font-size:10px; color:#aaa;">Crew</div>
+            </div>
+          </div>
+          <div class="cc-logo">VISA</div>
+        </div>
+        <div class="cc-chip"></div>
+        <div class="cc-num" id="ccDisplayNum">•••• •••• •••• ••••</div>
+        <div class="cc-bottom">
+          <span>Brezer Sorgu → Brezer Checker</span>
+          <span>••/••</span>
+        </div>
+      </div>
+
+      <textarea id="ccData" class="cc-textarea" placeholder="Datayı bu alana giriniz&#10;Örnek: 4444555566667777|01|21|001"></textarea>
+      
+      <div class="cc-btn-group">
+        <button class="cc-btn cc-btn-start" id="ccStartBtn">Başlat</button>
+        <button class="cc-btn cc-btn-stop" id="ccStopBtn">Durdur</button>
+        <button class="cc-btn cc-btn-clear" id="ccClearBtn">Temizle</button>
+      </div>
+
+      <div class="cc-live-box" id="ccLiveBox">
+        <div style="color:#aaa; font-size:12px; margin-bottom:10px;">⚡ Live: 0 | ✅ Checked: 0 | ❌ Bad: 0</div>
+        <div id="ccResults"></div>
+      </div>
+    </div>
+  `;
+  document.getElementById("resultArea").innerHTML = "";
+  
+  // Dinamik Kart Görseli Güncelleme
+  const ccDataInput = document.getElementById("ccData");
+  const ccDisplayNum = document.getElementById("ccDisplayNum");
+  ccDataInput.addEventListener("input", (e) => {
+    const val = e.target.value.split("|")[0].trim();
+    if (val.length > 0) {
+      let masked = val.replace(/(\d{4})(?=\d)/g, "$1 ");
+      ccDisplayNum.textContent = masked;
+    } else {
+      ccDisplayNum.textContent = "•••• •••• •••• ••••";
+    }
+  });
+
+  // Checker Mantığı
+  let isChecking = false;
+  const ccResults = document.getElementById("ccResults");
+  
+  document.getElementById("ccStartBtn").addEventListener("click", async () => {
+    const rawData = ccDataInput.value.trim();
+    if (!rawData) { toast("Lütfen veri girin.", "err"); return; }
+    
+    const lines = rawData.split("\n").map(l => l.trim()).filter(Boolean);
+    isChecking = true;
+    ccResults.innerHTML = "";
+    
+    let checked = 0, bad = 0;
+    
+    for (let i = 0; i < lines.length; i++) {
+      if (!isChecking) { toast("İşlem durduruldu.", "info"); break; }
+      
+      const line = lines[i];
+      const parts = line.split("|");
+      if (parts.length < 4) {
+        ccResults.innerHTML += `<div class="cc-live-item err">❌ Hatalı Format: ${escapeHtml(line)}</div>`;
+        bad++;
+        continue;
+      }
+      
+      const [num, mm, yy, cvv] = parts;
+      const cleanNum = num.replace(/\D/g, "");
+      
+      // Luhn Algoritması
+      let sum = 0, shouldDouble = false;
+      for (let j = cleanNum.length - 1; j >= 0; j--) {
+        let digit = parseInt(cleanNum.charAt(j));
+        if (shouldDouble) { digit *= 2; if (digit > 9) digit -= 9; }
+        sum += digit;
+        shouldDouble = !shouldDouble;
+      }
+      const isValidLuhn = (sum % 10) === 0;
+      
+      // Tarih Kontrolü
+      const currentYear = new Date().getFullYear() % 100;
+      const currentMonth = new Date().getMonth() + 1;
+      const isValidDate = parseInt(yy) > currentYear || (parseInt(yy) === currentYear && parseInt(mm) >= currentMonth);
+      
+      await new Promise(r => setTimeout(r, 500)); // Gecikme simülasyonu
+      
+      if (isValidLuhn && isValidDate && cleanNum.length >= 15) {
+        ccResults.innerHTML += `<div class="cc-live-item">✅ Canlı: ${escapeHtml(line)}</div>`;
+      } else {
+        ccResults.innerHTML += `<div class="cc-live-item err">❌ Ölü: ${escapeHtml(line)}</div>`;
+        bad++;
+      }
+      checked++;
+      
+      const liveBox = document.getElementById("ccLiveBox");
+      liveBox.scrollTop = liveBox.scrollHeight;
+      liveBox.firstElementChild.innerHTML = `⚡ Live: ${checked - bad} | ✅ Checked: ${checked} | ❌ Bad: ${bad}`;
+    }
+    
+    if (isChecking) {
+      toast("Kontrol tamamlandı!", "success");
+      isChecking = false;
+    }
+  });
+
+  document.getElementById("ccStopBtn").addEventListener("click", () => {
+    isChecking = false;
+    toast("Durduruldu.", "err");
+  });
+
+  document.getElementById("ccClearBtn").addEventListener("click", () => {
+    ccDataInput.value = "";
+    ccResults.innerHTML = "";
+    ccDisplayNum.textContent = "•••• •••• •••• ••••";
+    document.getElementById("ccLiveBox").firstElementChild.innerHTML = `⚡ Live: 0 | ✅ Checked: 0 | ❌ Bad: 0`;
+  });
+}
+
+// ---- MÜZİK ÇALAR ----
 const playlist = [
   { name: "Heijan - Genemi Amcalar (Çirkin Kral)", id: "m9lR4rOn37M" },
   { name: "ALROCA - El Clasico", id: "odkZ0YRcyo8" }
@@ -2008,7 +2195,6 @@ function loadTrack(index) {
   addTermLog(`Müzik çalıyor: ${track.name}`, "sys");
 }
 
-// Giriş yapıldığında müziği başlatan fonksiyon
 function startMusicOnLogin() {
   if (!isPlaying) {
     loadTrack(0);
@@ -2016,8 +2202,6 @@ function startMusicOnLogin() {
   }
 }
 
-// Kullanıcı sayfaya girdiğinde tarayıcı otomatik oynatmayı engelleyebilir. 
-// Bunu aşmak için sayfaya ilk tıklandığında müziği başlatıyoruz.
 document.body.addEventListener("click", function initAudio() {
   if (!isPlaying) {
     startMusicOnLogin();
