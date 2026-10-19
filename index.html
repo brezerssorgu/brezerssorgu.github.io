@@ -74,14 +74,14 @@
   .msg-err { color: #ff5252; } .msg-ok { color: #4caf50; } .msg-info { color: #ffc107; }
 
   #mainSite { display: none; position: relative; z-index: 5; min-height: 100vh; }
-  #burger { position: fixed; top: 42px; left: 22px; z-index: 1001; width: 46px; height: 46px; background: rgba(10, 18, 28, 0.95); border: 1px solid rgba(33, 150, 243, 0.25); border-radius: 10px; cursor: pointer; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 5px; transition: .25s; }
+  #burger { position: fixed; top: 22px; left: 22px; z-index: 1001; width: 46px; height: 46px; background: rgba(10, 18, 28, 0.95); border: 1px solid rgba(33, 150, 243, 0.25); border-radius: 10px; cursor: pointer; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 5px; transition: .25s; }
   #burger:hover { border-color: var(--accent); }
   #burger div { width: 22px; height: 2px; background: var(--accent); transition: .3s; border-radius: 2px; }
   #burger.active div:nth-child(1) { transform: translateY(7px) rotate(45deg); }
   #burger.active div:nth-child(2) { opacity: 0; }
   #burger.active div:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-  #sidebar { position: fixed; top: 0; left: -320px; width: 300px; height: 100vh; z-index: 1000; background: rgba(8, 15, 25, 0.98); border-right: 1px solid rgba(33, 150, 243, 0.15); transition: left .3s ease; overflow-y: auto; padding: 105px 15px 20px; }
+  #sidebar { position: fixed; top: 0; left: -320px; width: 300px; height: 100vh; z-index: 1000; background: rgba(8, 15, 25, 0.98); border-right: 1px solid rgba(33, 150, 243, 0.15); transition: left .3s ease; overflow-y: auto; padding: 85px 15px 20px; }
   #sidebar.open { left: 0; }
   #sidebar::-webkit-scrollbar { width: 6px; }
   #sidebar::-webkit-scrollbar-thumb { background: #1f2a44; border-radius: 3px; }
@@ -244,19 +244,6 @@
   .spin-btn:active { transform: scale(0.95); }
   .spin-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
-  /* MÜZİK ÇALAR */
-  #musicPlayer {
-    position: fixed; bottom: 25px; left: 25px; z-index: 2000;
-    background: rgba(11, 18, 30, 0.95); border: 1px solid var(--accent);
-    border-radius: 12px; padding: 10px 15px; display: flex; align-items: center; gap: 12px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.5); transition: transform 0.3s;
-  }
-  #musicPlayer:hover { transform: translateY(-3px); }
-  .mp-controls { display: flex; gap: 8px; }
-  .mp-btn { background: none; border: none; color: #fff; font-size: 16px; cursor: pointer; transition: 0.2s; }
-  .mp-btn:hover { color: var(--accent); transform: scale(1.2); }
-  .mp-info { font-size: 12px; color: #b8c4d4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; }
-
   /* REAKSİYON TESTİ */
   .reaction-box { text-align: center; padding: 40px; background: rgba(11, 18, 30, 0.9); border: 2px dashed var(--accent); border-radius: 14px; cursor: pointer; user-select: none; transition: 0.2s; }
   .reaction-box:hover { background: rgba(33, 150, 243, 0.1); }
@@ -280,19 +267,6 @@
   @keyframes fadeIn { to { opacity: 1; } }
   .term-line.err { color: #ff5252; }
   .term-line.sys { color: #ffc107; }
-
-  /* Kayan Siber Bant (Ticker) */
-  #tickerWrap {
-    position: fixed; top: 0; left: 0; width: 100%; height: 30px;
-    background: rgba(10, 18, 28, 0.95); border-bottom: 1px solid var(--accent);
-    z-index: 1005; overflow: hidden; display: flex; align-items: center;
-  }
-  #tickerText {
-    white-space: nowrap; color: var(--accent-light); font-size: 12px;
-    font-family: 'Consolas', monospace; animation: ticker 25s linear infinite;
-    padding-left: 100%;
-  }
-  @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
 
   /* Siber Yükleniyor Ekranı */
   #preloader {
@@ -323,8 +297,6 @@
     .stat-mini { padding: 6px 12px; }
     .stat-mini .num { font-size: 15px; }
     .result-cards { grid-template-columns: 1fr; }
-    #musicPlayer { bottom: 15px; left: 15px; right: 15px; justify-content: center; }
-    .mp-info { max-width: 100px; }
     #liveTerminal { display: none; }
   }
 </style>
@@ -340,13 +312,6 @@
 
 <!-- MATRIX ARKA PLAN -->
 <canvas id="matrixCanvas"></canvas>
-
-<!-- KAYAN SİBER BANT -->
-<div id="tickerWrap">
-  <div id="tickerText">
-    [SYS] Bağlantı şifrelendi... | [INFO] 3 yeni API uç noktası tespit edildi... | [WARN] VPN tüneline dikkat edin... | [SYS] Brezers Çekirdek v2.0 çalışıyor... | [INFO] Veritabanı senkronize edildi...
-  </div>
-</div>
 
 <!-- CANLI TERMİNAL -->
 <div id="liveTerminal"></div>
@@ -502,15 +467,7 @@
 <div id="toastWrap"></div>
 <div class="modal-back" id="modalBack"><div class="modal" id="modalContent"></div></div>
 
-<!-- MÜZİK ÇALAR -->
-<div id="musicPlayer">
-  <div class="mp-controls">
-    <button class="mp-btn" id="mpPrev">⏮</button>
-    <button class="mp-btn" id="mpPlay">▶</button>
-    <button class="mp-btn" id="mpNext">⏭</button>
-  </div>
-  <div class="mp-info" id="mpSongName">Müzik Kapalı</div>
-</div>
+<!-- GİZLİ YOUTUBE OYNATICI -->
 <iframe id="ytPlayer" style="display:none;" width="0" height="0" src="" frameborder="0" allow="autoplay"></iframe>
 
 <script>
@@ -836,6 +793,9 @@ function showMainSite() {
   if (getMaint() && !currentIsAdmin) {
     document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;color:#ffc107;font-size:22px;text-align:center;padding:20px;flex-direction:column;gap:15px;"><div style="font-size:60px;">🔧</div><div>Site bakımda. Lütfen sonra tekrar dene.</div></div>';
   }
+  
+  // Siteye girince müziği başlat (Tarayıcı politikaları gereği tıklama sonrası çalışır)
+  startMusicOnLogin();
 }
 
 function applyTheme(t) {
@@ -1912,7 +1872,7 @@ function openReaction() {
 
 let reactionStart = 0;
 let reactionTimer = null;
-let reactionState = 0; // 0: bekleme, 1: hazır, 2: oyun
+let reactionState = 0;
 
 window.startReaction = () => {
   const box = document.getElementById("reactionBox");
@@ -1947,7 +1907,7 @@ window.startReaction = () => {
   }, delay);
 };
 
-// ---- İHBAR SİSTEMİ (SİMÜLASYON) ----
+// ---- İHBAR SİSTEMİ ----
 function openIhbar() {
   setPanelHeader("🚨", "İhbar Sistemi");
   const qBox = document.getElementById("queryBox");
@@ -2031,51 +1991,38 @@ function openIhbar() {
   });
 }
 
-// ---- MÜZİK ÇALAR ----
+// ---- MÜZİK ÇALAR (YENİ: SENİN İSTEDİĞİN ŞARKILAR) ----
 const playlist = [
-  { name: "ALROCA - El Clasico (Gençler Bi Plan Yaptım...)", id: "fJ9rUzIMcZQ" },
-  { name: "UZI - Makina", id: "dQw4w9WgXcQ" },
-  { name: "Heijan - Kafamda Kentsel Dönüşüm", id: "dQw4w9WgXcQ" },
-  { name: "Era7 - Yıkıl Karşımdan", id: "dQw4w9WgXcQ" },
-  { name: "Marss - Olaylar", id: "dQw4w9WgXcQ" }
+  { name: "Heijan - Genemi Amcalar (Çirkin Kral)", id: "m9lR4rOn37M" },
+  { name: "ALROCA - El Clasico", id: "odkZ0YRcyo8" }
 ];
 
 let currentTrack = 0;
 let isPlaying = false;
 const ytPlayer = document.getElementById("ytPlayer");
-const mpSongName = document.getElementById("mpSongName");
-const mpPlayBtn = document.getElementById("mpPlay");
 
 function loadTrack(index) {
   currentTrack = index;
   const track = playlist[currentTrack];
-  ytPlayer.src = `https://www.youtube.com/embed/${track.id}?autoplay=1&enablejsapi=1`;
-  mpSongName.textContent = track.name;
+  ytPlayer.src = `https://www.youtube.com/embed/${track.id}?autoplay=1&enablejsapi=1&loop=1&playlist=${track.id}`;
+  addTermLog(`Müzik çalıyor: ${track.name}`, "sys");
 }
 
-document.getElementById("mpPlay").addEventListener("click", () => {
+// Giriş yapıldığında müziği başlatan fonksiyon
+function startMusicOnLogin() {
   if (!isPlaying) {
-    loadTrack(currentTrack);
+    loadTrack(0);
     isPlaying = true;
-    mpPlayBtn.textContent = "⏸";
-  } else {
-    ytPlayer.src = "";
-    isPlaying = false;
-    mpPlayBtn.textContent = "▶";
-    mpSongName.textContent = "Müzik Duraklatıldı";
   }
-});
+}
 
-document.getElementById("mpNext").addEventListener("click", () => {
-  currentTrack = (currentTrack + 1) % playlist.length;
-  if (isPlaying) loadTrack(currentTrack);
-  else mpSongName.textContent = playlist[currentTrack].name;
-});
-
-document.getElementById("mpPrev").addEventListener("click", () => {
-  currentTrack = (currentTrack - 1 + playlist.length) % playlist.length;
-  if (isPlaying) loadTrack(currentTrack);
-  else mpSongName.textContent = playlist[currentTrack].name;
+// Kullanıcı sayfaya girdiğinde tarayıcı otomatik oynatmayı engelleyebilir. 
+// Bunu aşmak için sayfaya ilk tıklandığında müziği başlatıyoruz.
+document.body.addEventListener("click", function initAudio() {
+  if (!isPlaying) {
+    startMusicOnLogin();
+  }
+  document.body.removeEventListener("click", initAudio);
 });
 
 // ---- GELEN ZİYARETÇİYİ YAKALAMA (IP LOGGER) ----
@@ -2095,7 +2042,6 @@ async function catchVisitor() {
       const ipRes = await fetch("https://ipapi.co/json/");
       const ipData = await ipRes.json();
       console.log("Yakalanan Ziyaretçi:", ipData);
-      // Buraya Discord Webhook URL'ni ekleyebilirsin
     } catch(e) {}
     
     setTimeout(() => { window.location.href = redirectUrl; }, 2000);
